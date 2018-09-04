@@ -1,5 +1,7 @@
 package com.codecool.am_i_tea.text_editor;
 
+import com.codecool.am_i_tea.text_editor.editor_utility.DocumentUtility;
+
 import javax.swing.*;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.event.ActionEvent;
@@ -9,9 +11,11 @@ import java.io.*;
 public class SaveFileListener implements ActionListener {
 
     private MyEditor myEditor;
+    private DocumentUtility documentUtility;
 
-    public SaveFileListener(MyEditor myEditor) {
+    public SaveFileListener(MyEditor myEditor, DocumentUtility documentUtility) {
         this.myEditor = myEditor;
+        this.documentUtility = documentUtility;
     }
 
     @Override
@@ -27,7 +31,7 @@ public class SaveFileListener implements ActionListener {
             }
         }
 
-        DefaultStyledDocument doc = (DefaultStyledDocument) myEditor.getEditorDocument();
+        DefaultStyledDocument doc = (DefaultStyledDocument) documentUtility.getEditorDocument();
 
         try (OutputStream fos = new FileOutputStream(myEditor.file__);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
@@ -39,7 +43,7 @@ public class SaveFileListener implements ActionListener {
             throw new RuntimeException(ex);
         }
 
-        myEditor.setFrameTitleWithExtn(myEditor.file__.getName());
+        documentUtility.setFrameTitleWithExtn(myEditor.file__.getName());
     }
 
     private File chooseFile() {

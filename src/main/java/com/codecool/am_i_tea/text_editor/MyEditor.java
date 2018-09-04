@@ -123,7 +123,10 @@ public class MyEditor {
                 documentUtility,
                 paraUtility,
                 numbersUtility));
-        editor__.addCaretListener(new EditorCaretListener(this));
+        editor__.addCaretListener(new EditorCaretListener(this,
+                documentUtility,
+                paraUtility,
+                numbersUtility));
 
         undoMgr__ = new UndoManager();
         EditButtonActionListener editButtonActionListener =
@@ -249,13 +252,13 @@ public class MyEditor {
 
         JMenuItem newItem = new JMenuItem("New");
         newItem.setMnemonic(KeyEvent.VK_N);
-        newItem.addActionListener(new NewFileListener(this));
+        newItem.addActionListener(new NewFileListener(this, documentUtility));
         JMenuItem openItem = new JMenuItem("Open...");
         openItem.setMnemonic(KeyEvent.VK_O);
-        openItem.addActionListener(new OpenFileListener(this));
+        openItem.addActionListener(new OpenFileListener(this, documentUtility));
         JMenuItem saveItem = new JMenuItem("Save (...)");
         saveItem.setMnemonic(KeyEvent.VK_S);
-        saveItem.addActionListener(new SaveFileListener(this));
+        saveItem.addActionListener(new SaveFileListener(this, documentUtility));
         JMenuItem exitItem = new JMenuItem("Exit");
         exitItem.setMnemonic(KeyEvent.VK_X);
         exitItem.addActionListener(new ActionListener() {
