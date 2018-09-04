@@ -1,5 +1,9 @@
 package com.codecool.am_i_tea.text_editor;
 
+import com.codecool.am_i_tea.text_editor.editor_utility.BulletsUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.DocumentUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.ParaUtility;
+
 import javax.swing.text.Element;
 import javax.swing.text.StyledDocument;
 import java.awt.event.ActionEvent;
@@ -8,12 +12,22 @@ import java.awt.event.ActionListener;
 public class BulletActionListener implements ActionListener {
 
     private MyEditor myEditor;
+    private DocumentUtility documentUtility;
+    private ParaUtility paraUtility;
+    private BulletsUtility bulletsUtility;
+
     private MyEditor.BulletActionType bulletActionType;
 
-    public BulletActionListener(MyEditor myEditor, MyEditor.BulletActionType actionType) {
-
+    public BulletActionListener(MyEditor myEditor,
+                                MyEditor.BulletActionType actionType,
+                                DocumentUtility documentUtility,
+                                ParaUtility paraUtility,
+                                BulletsUtility bulletsUtility) {
         this.myEditor = myEditor;
         bulletActionType = actionType;
+        this.documentUtility = documentUtility;
+        this.paraUtility = paraUtility;
+        this.bulletsUtility = bulletsUtility;
     }
 
     /*
@@ -35,7 +49,7 @@ public class BulletActionListener implements ActionListener {
             return;
         }
 
-        StyledDocument doc = myEditor.getEditorDocument();
+        StyledDocument doc = documentUtility.getEditorDocument();
         Element paraEle = doc.getParagraphElement(myEditor.editor__.getSelectionStart());
         int paraEleStart = paraEle.getStartOffset();
         int paraEleEnd = 0;
@@ -55,18 +69,18 @@ public class BulletActionListener implements ActionListener {
             switch (bulletActionType) {
 
                 case INSERT:
-                    if ((! myEditor.isBulletedPara(paraEleStart)) &&
-                            (! myEditor.isNumberedPara(paraEleStart))) {
+                    if ((! bulletsUtility.isBulletedPara(paraEleStart)) &&
+                            (! paraUtility.isNumberedPara(paraEleStart))) {
 
-                        myEditor.insertBullet(paraEleStart, paraEleStart);
+                        bulletsUtility.insertBullet(paraEleStart, paraEleStart);
                     }
 
                     break; // switch
 
                 case REMOVE:
-                    if (myEditor.isBulletedPara(paraEleStart)) {
+                    if (bulletsUtility.isBulletedPara(paraEleStart)) {
 
-                        myEditor.removeBullet(paraEleStart, MyEditor.BULLET_LENGTH);
+                        bulletsUtility.removeBullet(paraEleStart, MyEditor.BULLET_LENGTH);
                     }
             }
 

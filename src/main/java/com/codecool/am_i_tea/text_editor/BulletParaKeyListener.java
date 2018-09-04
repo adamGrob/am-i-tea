@@ -1,5 +1,9 @@
 package com.codecool.am_i_tea.text_editor;
 
+import com.codecool.am_i_tea.text_editor.editor_utility.BulletsUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.DocumentUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.ParaUtility;
+
 import javax.swing.text.Element;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -13,6 +17,9 @@ import java.awt.event.KeyListener;
 public class BulletParaKeyListener implements KeyListener {
 
     private MyEditor myEditor;
+    private DocumentUtility documentUtility;
+    private ParaUtility paraUtility;
+    private BulletsUtility bulletsUtility;
 
     // These two variables are derived in the keyPressed and are used in
     // keyReleased method.
@@ -23,8 +30,14 @@ public class BulletParaKeyListener implements KeyListener {
     // This is required to distinguish from the numbered para.
     private boolean bulletedPara_;
 
-    public BulletParaKeyListener(MyEditor myEditor) {
+    public BulletParaKeyListener(MyEditor myEditor,
+                                 DocumentUtility documentUtility,
+                                 ParaUtility paraUtility,
+                                 BulletsUtility bulletsUtility) {
         this.myEditor = myEditor;
+        this.documentUtility = documentUtility;
+        this.paraUtility = paraUtility;
+        this.bulletsUtility = bulletsUtility;
     }
 
     @Override
@@ -42,7 +55,7 @@ public class BulletParaKeyListener implements KeyListener {
             return;
         }
 
-        Element paraEle = myEditor.getEditorDocument().getParagraphElement(pos);
+        Element paraEle = documentUtility.getEditorDocument().getParagraphElement(pos);
         int paraEleStart = paraEle.getStartOffset();
 
         switch (e.getKeyCode()) {
@@ -62,9 +75,9 @@ public class BulletParaKeyListener implements KeyListener {
 
     private boolean isBulletedParaForPos(int caretPos) {
 
-        Element paraEle = myEditor.getEditorDocument().getParagraphElement(caretPos);
+        Element paraEle = documentUtility.getEditorDocument().getParagraphElement(caretPos);
 
-        if (myEditor.isBulletedPara(paraEle.getStartOffset())) {
+        if (bulletsUtility.isBulletedPara(paraEle.getStartOffset())) {
 
             return true;
         }
@@ -82,10 +95,10 @@ public class BulletParaKeyListener implements KeyListener {
         if (isBulletedParaForPos(pos)) {
 
             bulletedPara_ = true;
-            Element paraEle = myEditor.getEditorDocument().getParagraphElement(pos);
+            Element paraEle = documentUtility.getEditorDocument().getParagraphElement(pos);
             prevParaEleStart_ = paraEle.getStartOffset();
             prevParaText_ =
-                    myEditor.getPrevParaText(prevParaEleStart_, paraEle.getEndOffset());
+                    paraUtility.getPrevParaText(prevParaEleStart_, paraEle.getEndOffset());
         }
     }
 
@@ -94,7 +107,7 @@ public class BulletParaKeyListener implements KeyListener {
 
         int paraEleEnd = paraEle.getEndOffset();
 
-        if (paraEleEnd > myEditor.getEditorDocument().getLength()) {
+        if (paraEleEnd > documentUtility.getEditorDocument().getLength()) {
 
             return; // no next para, end of document text
         }
@@ -104,7 +117,7 @@ public class BulletParaKeyListener implements KeyListener {
             if (isBulletedParaForPos(paraEleEnd + 1)) {
 
                 // following para is bulleted, remove
-                myEditor.removeBullet(pos, MyEditor.BULLET_LENGTH);
+                bulletsUtility.removeBullet(pos, MyEditor.BULLET_LENGTH);
             }
             // else, not a bulleted para
             // delete happens normally (one char)
@@ -119,7 +132,7 @@ public class BulletParaKeyListener implements KeyListener {
         // before the bullet (that is BULLET_LENGTH).
         if (myEditor.startPosPlusBullet__) {
 
-            myEditor.removeBullet(paraEle.getStartOffset(), myEditor.BULLET_LENGTH);
+            bulletsUtility.removeBullet(paraEle.getStartOffset(), myEditor.BULLET_LENGTH);
             myEditor.startPosPlusBullet__ = false;
         }
     }
@@ -150,7 +163,7 @@ public class BulletParaKeyListener implements KeyListener {
         if (prevParaText.length() < 4) {
 
             // Para has bullet and no text, remove bullet+CR from para
-            myEditor.removeBullet(prevParaEleStart, (MyEditor.BULLET_LENGTH + 1));
+            bulletsUtility.removeBullet(prevParaEleStart, (MyEditor.BULLET_LENGTH + 1));
             myEditor.editor__.setCaretPosition(prevParaEleStart);
             return;
         }
@@ -158,7 +171,7 @@ public class BulletParaKeyListener implements KeyListener {
 
         // Insert bullet for next para (current position), and
         // prev para attributes are used for this bullet.
-        myEditor.insertBullet(myEditor.editor__.getCaretPosition(), prevParaEleStart);
+        bulletsUtility.insertBullet(myEditor.editor__.getCaretPosition(), prevParaEleStart);
     }
 
 } // BulletParaKeyListener
