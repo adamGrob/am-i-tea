@@ -25,11 +25,17 @@ public class ParaUtility {
         return firstChar.charAt(0);
     }
 
+    public boolean isBulletedPara(int paraEleStart) {
+        if (getParaFirstCharacter(paraEleStart) == MyEditor.BULLET_CHAR) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isNumberedPara(int paraEleStart) {
         AttributeSet attrSet = getParaStartAttributes(paraEleStart);
         Integer paraNum = (Integer) attrSet.getAttribute(MyEditor.NUMBERS_ATTR);
         if ((paraNum == null) || (!isFirstCharNumber(paraEleStart))) {
-
             return false;
         }
         return true;

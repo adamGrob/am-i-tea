@@ -14,13 +14,6 @@ public class BulletsUtility {
         this.paraUtility = paraUtility;
     }
 
-    public boolean isBulletedPara(int paraEleStart) {
-        if (paraUtility.getParaFirstCharacter(paraEleStart) == MyEditor.BULLET_CHAR) {
-            return true;
-        }
-        return false;
-    }
-
     /*
      * The insert bullet routine; inserts the bullet in the editor document. This
      * routine is used from the insert action (ActionListener) as well as bullet

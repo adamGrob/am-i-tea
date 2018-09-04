@@ -69,7 +69,7 @@ public class BulletActionListener implements ActionListener {
             switch (bulletActionType) {
 
                 case INSERT:
-                    if ((! bulletsUtility.isBulletedPara(paraEleStart)) &&
+                    if ((! paraUtility.isBulletedPara(paraEleStart)) &&
                             (! paraUtility.isNumberedPara(paraEleStart))) {
 
                         bulletsUtility.insertBullet(paraEleStart, paraEleStart);
@@ -78,7 +78,7 @@ public class BulletActionListener implements ActionListener {
                     break; // switch
 
                 case REMOVE:
-                    if (bulletsUtility.isBulletedPara(paraEleStart)) {
+                    if (paraUtility.isBulletedPara(paraEleStart)) {
 
                         bulletsUtility.removeBullet(paraEleStart, MyEditor.BULLET_LENGTH);
                     }

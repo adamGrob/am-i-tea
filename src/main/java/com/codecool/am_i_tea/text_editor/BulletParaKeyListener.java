@@ -71,14 +71,11 @@ public class BulletParaKeyListener implements KeyListener {
             case KeyEvent.VK_ENTER: getPrevParaDetails(pos);
         }
 
-    } // keyPressed()
+    }
 
     private boolean isBulletedParaForPos(int caretPos) {
-
         Element paraEle = documentUtility.getEditorDocument().getParagraphElement(caretPos);
-
-        if (bulletsUtility.isBulletedPara(paraEle.getStartOffset())) {
-
+        if (paraUtility.isBulletedPara(paraEle.getStartOffset())) {
             return true;
         }
 
@@ -93,7 +90,6 @@ public class BulletParaKeyListener implements KeyListener {
         pos =  pos - 1;
 
         if (isBulletedParaForPos(pos)) {
-
             bulletedPara_ = true;
             Element paraEle = documentUtility.getEditorDocument().getParagraphElement(pos);
             prevParaEleStart_ = paraEle.getStartOffset();
