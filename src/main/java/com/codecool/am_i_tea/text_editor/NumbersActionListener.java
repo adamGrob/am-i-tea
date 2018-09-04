@@ -1,22 +1,35 @@
 package com.codecool.am_i_tea.text_editor;
 
+import com.codecool.am_i_tea.text_editor.editor_utility.BulletsUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.DocumentUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.NumbersUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.ParaUtility;
+
 import javax.swing.text.Element;
 import javax.swing.text.StyledDocument;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-/*
- * Action listener class for number insert and remove button actions.
- */
 public class NumbersActionListener implements ActionListener {
 
     private MyEditor myEditor;
+    private DocumentUtility documentUtility;
+    private ParaUtility paraUtility;
+    private NumbersUtility numbersUtility;
+
     private MyEditor.NumbersActionType numbersActionType;
     private int n;
 
-    public NumbersActionListener(MyEditor myEditor, MyEditor.NumbersActionType actionType) {
+    public NumbersActionListener(MyEditor myEditor,
+                                 MyEditor.NumbersActionType actionType,
+                                 DocumentUtility documentUtility,
+                                 ParaUtility paraUtility,
+                                 NumbersUtility numbersUtility) {
 
         this.myEditor = myEditor;
+        this.documentUtility = documentUtility;
+        this.paraUtility = paraUtility;
+        this.numbersUtility = numbersUtility;
         numbersActionType = actionType;
     }
 
@@ -32,7 +45,7 @@ public class NumbersActionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        StyledDocument doc = myEditor.getEditorDocument();
+        StyledDocument doc = documentUtility.getEditorDocument();
         String selectedText = myEditor.editor__.getSelectedText();
 
         if ((selectedText == null) || (selectedText.trim().isEmpty())) {
@@ -68,7 +81,7 @@ public class NumbersActionListener implements ActionListener {
 
                 case INSERT:
 
-                    if (myEditor.isBulletedPara(paraEleStart)) {
+                    if (paraUtility.isBulletedPara(paraEleStart)) {
 
                         break; // switch
                     }
@@ -79,25 +92,25 @@ public class NumbersActionListener implements ActionListener {
                         n = 0;
                     }
 
-                    if (myEditor.isNumberedPara(paraEleStart)) {
+                    if (paraUtility.isNumberedPara(paraEleStart)) {
 
                         // remove any existing number
-                        myEditor.removeNumber(paraEleStart, myEditor.getNumberLength(paraEleStart));
+                        numbersUtility.removeNumber(paraEleStart, numbersUtility.getNumberLength(paraEleStart));
                     }
 
-                    if (! myEditor.isNumberedPara(paraEleStart)) {
+                    if (! paraUtility.isNumberedPara(paraEleStart)) {
 
                         Integer nextN = new Integer(++n);
-                        myEditor.insertNumber(paraEleStart, paraEleStart, nextN);
+                        numbersUtility.insertNumber(paraEleStart, paraEleStart, nextN);
                     }
 
                     break; // switch
 
                 case REMOVE:
 
-                    if (myEditor.isNumberedPara(paraEleStart)) {
+                    if (paraUtility.isNumberedPara(paraEleStart)) {
 
-                        myEditor.removeNumber(paraEleStart, myEditor.getNumberLength(paraEleStart));
+                        numbersUtility.removeNumber(paraEleStart, numbersUtility.getNumberLength(paraEleStart));
                     }
             }
 

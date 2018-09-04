@@ -1,5 +1,10 @@
 package com.codecool.am_i_tea.text_editor;
 
+import com.codecool.am_i_tea.text_editor.editor_utility.BulletsUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.DocumentUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.NumbersUtility;
+import com.codecool.am_i_tea.text_editor.editor_utility.ParaUtility;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Element;
@@ -19,6 +24,9 @@ import java.awt.event.KeyListener;
 public class NumbersParaKeyListener implements KeyListener {
 
     private MyEditor myEditor;
+    private DocumentUtility documentUtility;
+    private ParaUtility paraUtility;
+    private NumbersUtility numbersUtility;
 
     // These two variables are derived in the keyPressed and are used in
     // keyReleased method.
@@ -29,8 +37,14 @@ public class NumbersParaKeyListener implements KeyListener {
     // This is required to distinguish from the bulleted para.
     private boolean numberedPara_;
 
-    public NumbersParaKeyListener(MyEditor myEditor) {
+    public NumbersParaKeyListener(MyEditor myEditor,
+                                  DocumentUtility documentUtility,
+                                  ParaUtility paraUtility,
+                                  NumbersUtility numbersUtility) {
         this.myEditor = myEditor;
+        this.documentUtility = documentUtility;
+        this.paraUtility = paraUtility;
+        this.numbersUtility = numbersUtility;
     }
 
     @Override
@@ -41,9 +55,7 @@ public class NumbersParaKeyListener implements KeyListener {
     public void keyPressed(KeyEvent e) {
 
         String selectedText = myEditor.editor__.getSelectedText();
-
         if ((selectedText == null) || (selectedText.trim().isEmpty())) {
-
             // continue, processing key press without any selected text
         }
         else {
@@ -56,18 +68,16 @@ public class NumbersParaKeyListener implements KeyListener {
         int pos = myEditor.editor__.getCaretPosition();
 
         if (! isNumberedParaForPos(pos)) {
-
             return;
         }
 
-        Element paraEle = myEditor.getEditorDocument().getParagraphElement(pos);
+        Element paraEle = documentUtility.getEditorDocument().getParagraphElement(pos);
         int paraEleStart = paraEle.getStartOffset();
 
         switch (e.getKeyCode()) {
-
             case KeyEvent.VK_LEFT: // same as that of VK_KP_LEFT
             case KeyEvent.VK_KP_LEFT: int newPos = pos -
-                    (myEditor.getNumberLength(paraEleStart) + 1);
+                    (numbersUtility.getNumberLength(paraEleStart) + 1);
                 myEditor.doLeftArrowKeyRoutine(newPos, myEditor.startPosPlusNum__);
                 break;
             case KeyEvent.VK_DELETE: doDeleteKeyRoutine(paraEle, pos);
@@ -82,14 +92,8 @@ public class NumbersParaKeyListener implements KeyListener {
 
     private boolean isNumberedParaForPos(int caretPos) {
 
-        Element paraEle = myEditor.getEditorDocument().getParagraphElement(caretPos);
-
-        if (myEditor.isNumberedPara(paraEle.getStartOffset())) {
-
-            return true;
-        }
-
-        return false;
+        Element paraEle = documentUtility.getEditorDocument().getParagraphElement(caretPos);
+        return paraUtility.isNumberedPara(paraEle.getStartOffset());
     }
 
     /*
@@ -105,7 +109,7 @@ public class NumbersParaKeyListener implements KeyListener {
         // is replaced in the middle of numbered paras or at the top
         // items of the numbered paras.
 
-        StyledDocument doc = myEditor.getEditorDocument();
+        StyledDocument doc = documentUtility.getEditorDocument();
         Element topParaEle = doc.getParagraphElement(myEditor.editor__.getSelectionStart());
         Element bottomParaEle = doc.getParagraphElement(myEditor.editor__.getSelectionEnd());
 
@@ -114,9 +118,8 @@ public class NumbersParaKeyListener implements KeyListener {
 
         // No numbered text at bottom, no processing required -or-
         // no next para after selection end (end of document text).
-        if ((! myEditor.isNumberedPara(bottomParaEleStart)) ||
+        if ((! paraUtility.isNumberedPara(bottomParaEleStart)) ||
                 (bottomParaEleEnd > doc.getLength())) {
-
             return;
         }
 
@@ -124,17 +127,16 @@ public class NumbersParaKeyListener implements KeyListener {
         Element paraEle = doc.getParagraphElement(bottomParaEleEnd + 1);
         int paraEleStart = paraEle.getStartOffset();
 
-        if (! myEditor.isNumberedPara(paraEleStart)) {
+        if (! paraUtility.isNumberedPara(paraEleStart)) {
 
             return;
         }
 
         // Process re-numbering
 
-        Integer numTop = myEditor.getParaNumber(topParaEle.getStartOffset());
+        Integer numTop = numbersUtility.getParaNumber(topParaEle.getStartOffset());
 
         if (numTop != null) {
-
             // There are numbered items above the removed para, and
             // there are numbered items following the removed para;
             // bottom numbers start from numTop + 1.
@@ -158,18 +160,17 @@ public class NumbersParaKeyListener implements KeyListener {
      */
     private void doNewNumbers(int nextParaEleStart, Integer newNum) {
 
-        StyledDocument doc = myEditor.getEditorDocument();
+        StyledDocument doc = documentUtility.getEditorDocument();
         Element nextParaEle = doc.getParagraphElement(nextParaEleStart);
         boolean nextParaIsNumbered = true;
 
         NUMBERED_PARA_LOOP:
         while (nextParaIsNumbered) {
 
-            Integer oldNum = myEditor.getParaNumber(nextParaEleStart);
+            Integer oldNum = numbersUtility.getParaNumber(nextParaEleStart);
             newNum++;
             replaceNumbers(nextParaEleStart, oldNum, newNum);
-
-            nextParaIsNumbered = false;
+            // nextParaIsNumbered = false;
 
             // Get following para details after number is replaced for a para
 
@@ -177,53 +178,44 @@ public class NumbersParaKeyListener implements KeyListener {
             int nextParaPos = nextParaEleEnd + 1;
 
             if (nextParaPos > doc.getLength()) {
-
                 break NUMBERED_PARA_LOOP; // no next para, end of document text
             }
 
             nextParaEle = doc.getParagraphElement(nextParaPos);
             nextParaEleStart = nextParaEle.getStartOffset();
-            nextParaIsNumbered = myEditor.isNumberedPara(nextParaEleStart);
+            nextParaIsNumbered = paraUtility.isNumberedPara(nextParaEleStart);
         }
-        // NUMBERED_PARA_LOOP
-
-    } // doNewNumbers()
+    }
 
     private void replaceNumbers(int nextParaEleStart, Integer prevNum,
                                 Integer newNum) {
-
         try {
-            ((DefaultStyledDocument) myEditor.getEditorDocument()).replace(
+            ((DefaultStyledDocument) documentUtility.getEditorDocument()).replace(
                     nextParaEleStart,
-                    myEditor.getNumberString(prevNum).length(),
-                    myEditor.getNumberString(newNum),
-                    myEditor.getNumbersAttributes(nextParaEleStart, newNum));
+                    numbersUtility.getNumberString(prevNum).length(),
+                    numbersUtility.getNumberString(newNum),
+                    numbersUtility.getNumbersAttributes(nextParaEleStart, newNum));
         }
         catch(BadLocationException ex) {
-
             throw new RuntimeException(ex);
         }
     }
 
     // Delete key press routine within a numbered para.
     private void doDeleteKeyRoutine(Element paraEle, int pos) {
-
         int paraEleEnd = paraEle.getEndOffset();
-
-        if (paraEleEnd > myEditor.getEditorDocument().getLength()) {
-
+        if (paraEleEnd > documentUtility.getEditorDocument().getLength()) {
             return; // no next para, end of document text
         }
 
-        if (pos == (paraEleEnd - 1)) { // last char of para; -1 is for CR
-
+        if (pos == (paraEleEnd - 1)) {
+            // last char of para; -1 is for CR
             Element nextParaEle =
-                    myEditor.getEditorDocument().getParagraphElement(paraEleEnd + 1);
+                    documentUtility.getEditorDocument().getParagraphElement(paraEleEnd + 1);
             int nextParaEleStart = nextParaEle.getStartOffset();
 
-            if (myEditor.isNumberedPara(nextParaEleStart)) {
-
-                myEditor.removeNumber(pos, myEditor.getNumberLength(nextParaEleStart));
+            if (paraUtility.isNumberedPara(nextParaEleStart)) {
+                numbersUtility.removeNumber(pos, numbersUtility.getNumberLength(nextParaEleStart));
                 doReNumberingForDeleteKey(paraEleEnd + 1);
             }
             // else, not a numbered para
@@ -234,7 +226,7 @@ public class NumbersParaKeyListener implements KeyListener {
     private void doReNumberingForDeleteKey(int delParaPos) {
 
         // Get para element details where delete key is pressed
-        StyledDocument doc = myEditor.getEditorDocument();
+        StyledDocument doc = documentUtility.getEditorDocument();
         Element paraEle = doc.getParagraphElement(delParaPos);
         int paraEleStart = paraEle.getStartOffset();
         int paraEleEnd = paraEle.getEndOffset();
@@ -246,12 +238,11 @@ public class NumbersParaKeyListener implements KeyListener {
         // In case bottom para is not numbered or end of document,
         // no re-numbering is required.
         if ((paraEleEnd > doc.getLength()) ||
-                (! myEditor.isNumberedPara(bottomParaEleStart))) {
-
+                (! paraUtility.isNumberedPara(bottomParaEleStart))) {
             return;
         }
 
-        Integer n = myEditor.getParaNumber(paraEleStart);
+        Integer n = numbersUtility.getParaNumber(paraEleStart);
         doNewNumbers(bottomParaEleStart, n);
     }
 
@@ -262,9 +253,8 @@ public class NumbersParaKeyListener implements KeyListener {
         // In case the position of cursor at the backspace is just after
         // the number: remove the number and re-number the following ones.
         if (myEditor.startPosPlusNum__) {
-
             int startOffset = paraEle.getStartOffset();
-            myEditor.removeNumber(startOffset, myEditor.getNumberLength(startOffset));
+            numbersUtility.removeNumber(startOffset, numbersUtility.getNumberLength(startOffset));
             doReNumberingForBackspaceKey(paraEle, startOffset);
             myEditor.startPosPlusNum__ = false;
         }
@@ -273,12 +263,11 @@ public class NumbersParaKeyListener implements KeyListener {
     private void doReNumberingForBackspaceKey(Element paraEle, int paraEleStart) {
 
         // Get bottom para element and check if numbered.
-        StyledDocument doc = myEditor.getEditorDocument();
+        StyledDocument doc = documentUtility.getEditorDocument();
         Element bottomParaEle = doc.getParagraphElement(paraEle.getEndOffset() + 1);
         int bottomParaEleStart = bottomParaEle.getStartOffset();
 
-        if (! myEditor.isNumberedPara(bottomParaEleStart)) {
-
+        if (! paraUtility.isNumberedPara(bottomParaEleStart)) {
             return; // there are no numbers following this para, and
             // no re-numbering required.
         }
@@ -288,17 +277,15 @@ public class NumbersParaKeyListener implements KeyListener {
         Integer numTop = null;
 
         if (paraEleStart == 0) {
-
             // beginning of document, no top para exists
             // before the document start; numTop = null
         }
         else {
             Element topParaEle = doc.getParagraphElement(paraEleStart - 1);
-            numTop = myEditor.getParaNumber(topParaEle.getStartOffset());
+            numTop = numbersUtility.getParaNumber(topParaEle.getStartOffset());
         }
 
         if (numTop == null) {
-
             // There are no numbered items above the removed para, and
             // there are numbered items following the removed para;
             // bottom numbers start from 1.
@@ -321,57 +308,51 @@ public class NumbersParaKeyListener implements KeyListener {
         pos =  pos - 1;
 
         if (isNumberedParaForPos(pos)) {
-
             numberedPara_ = true;
-            Element paraEle = myEditor.getEditorDocument().getParagraphElement(pos);
+            Element paraEle = documentUtility.getEditorDocument().getParagraphElement(pos);
             prevParaEleStart_ = paraEle.getStartOffset();
             prevParaText_ =
-                    myEditor.getPrevParaText(prevParaEleStart_, paraEle.getEndOffset());
+                    paraUtility.getPrevParaText(prevParaEleStart_, paraEle.getEndOffset());
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-
         if (! numberedPara_) {
-
             return;
         }
-
         switch (e.getKeyCode()) {
-
             case KeyEvent.VK_ENTER: doEnterKeyRoutine();
                 break;
         }
     }
 
-    // Enter key press routine within a numbered para.
-    // Also, see keyPressed().
+
     private void doEnterKeyRoutine() {
 
         String prevParaText = prevParaText_;
         int prevParaEleStart = prevParaEleStart_;
-        int len = myEditor.getNumberLength(prevParaEleStart) + 1; // +1 for CR
+        int len = numbersUtility.getNumberLength(prevParaEleStart) + 1; // +1 for CR
 
         // Check if prev para with numbers has text
         if (prevParaText.length() == len) {
 
             // Para has numbers and no text, remove number from para
-            myEditor.removeNumber(prevParaEleStart, len);
+            numbersUtility.removeNumber(prevParaEleStart, len);
             myEditor.editor__.setCaretPosition(prevParaEleStart);
             return;
         }
         // Prev para with number and text,
         // insert number for new para (current position)
-        Integer num = myEditor.getParaNumber(prevParaEleStart);
+        Integer num = numbersUtility.getParaNumber(prevParaEleStart);
         num++;
-        myEditor.insertNumber(myEditor.editor__.getCaretPosition(), prevParaEleStart, num);
+        numbersUtility.insertNumber(myEditor.editor__.getCaretPosition(), prevParaEleStart, num);
 
         // After insert, check for numbered paras following the newly
         // inserted numberd para; and re-number those paras.
 
         // Get newly inserted number para details
-        StyledDocument doc = myEditor.getEditorDocument();
+        StyledDocument doc = documentUtility.getEditorDocument();
         Element newParaEle = doc.getParagraphElement(myEditor.editor__.getCaretPosition());
         int newParaEleEnd = newParaEle.getEndOffset();
 
@@ -385,11 +366,11 @@ public class NumbersParaKeyListener implements KeyListener {
         Element nextParaEle = doc.getParagraphElement(newParaEleEnd + 1);
         int nextParaEleStart = nextParaEle.getStartOffset();
 
-        if (myEditor.isNumberedPara(nextParaEleStart)) {
+        if (paraUtility.isNumberedPara(nextParaEleStart)) {
 
             doNewNumbers(nextParaEleStart, num);
         }
 
-    } // doEnterKeyRoutine()
+    }
 
 }

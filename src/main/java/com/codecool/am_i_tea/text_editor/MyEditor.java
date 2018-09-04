@@ -119,7 +119,10 @@ public class MyEditor {
                 documentUtility,
                 paraUtility,
                 bulletsUtility));
-        editor__.addKeyListener(new NumbersParaKeyListener(this));
+        editor__.addKeyListener(new NumbersParaKeyListener(this,
+                documentUtility,
+                paraUtility,
+                numbersUtility));
         editor__.addCaretListener(new EditorCaretListener(this));
 
         undoMgr__ = new UndoManager();
@@ -191,10 +194,18 @@ public class MyEditor {
 
         JButton numbersInsertButton = new JButton("Numbers Insert");
         numbersInsertButton.addActionListener(
-                new NumbersActionListener(this, NumbersActionType.INSERT));
+                new NumbersActionListener(this,
+                        NumbersActionType.INSERT,
+                        documentUtility,
+                        paraUtility,
+                        numbersUtility));
         JButton numbersRemoveButton = new JButton("Numbers Remove");
         numbersRemoveButton.addActionListener(
-                new NumbersActionListener(this, NumbersActionType.REMOVE));
+                new NumbersActionListener(this,
+                        NumbersActionType.REMOVE,
+                        documentUtility,
+                        paraUtility,
+                        numbersUtility));
 
         JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel1.add(cutButton);
