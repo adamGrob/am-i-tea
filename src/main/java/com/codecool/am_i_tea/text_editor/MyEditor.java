@@ -5,36 +5,18 @@ import com.codecool.am_i_tea.text_editor.editor_utility.DocumentUtility;
 import com.codecool.am_i_tea.text_editor.editor_utility.NumbersUtility;
 import com.codecool.am_i_tea.text_editor.editor_utility.ParaUtility;
 
-import java.awt.FlowLayout;
-import java.awt.BorderLayout;
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JFrame;
-import javax.swing.JTextPane;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JScrollPane;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingConstants;
-import javax.swing.BoxLayout;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Element;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit.CutAction;
 import javax.swing.text.DefaultEditorKit.CopyAction;
 import javax.swing.text.DefaultEditorKit.PasteAction;
@@ -44,6 +26,7 @@ import javax.swing.text.StyledEditorKit.UnderlineAction;
 
 import javax.swing.undo.UndoManager;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 import java.util.Arrays;
@@ -60,23 +43,17 @@ public class MyEditor {
 
     public JFrame frame__;
     public JTextPane editor__;
+
     JComboBox<String> fontSizeComboBox__;
-    JComboBox<String> textAlignComboBox__;
     JComboBox<String> fontFamilyComboBox__;
     UndoManager undoMgr__;
     File file__;
 
-    enum BulletActionType {INSERT, REMOVE}
+    JComboBox<String> textAlignComboBox__;
 
-    ;
-
-    enum NumbersActionType {INSERT, REMOVE}
-
-    ;
-
-    enum UndoActionType {UNDO, REDO}
-
-    ;
+    enum BulletActionType {INSERT, REMOVE};
+    enum NumbersActionType {INSERT, REMOVE};
+    enum UndoActionType {UNDO, REDO};
 
     // This flag checks true if the caret position within a bulleted para
     // is at the first text position after the bullet (bullet char + space).
@@ -88,78 +65,52 @@ public class MyEditor {
     // Alse see EditorCaretListener and NumbersParaKeyListener.
     boolean startPosPlusNum__;
 
+    private static final List<String> FONT_LIST = Arrays.asList(new String[]{"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
+    private static final String[] FONT_SIZES = {"Font Size", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30"};
+    private static final String ELEM = AbstractDocument.ElementNameAttribute;
+    private static final String COMP = StyleConstants.ComponentElementName;
     public static final String MAIN_TITLE = "My Editor - ";
     public static final String DEFAULT_FONT_FAMILY = "SansSerif";
     public static final int DEFAULT_FONT_SIZE = 18;
-    private static final List<String> FONT_LIST = Arrays.asList(new String[]{"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
-    private static final String[] FONT_SIZES = {"Font Size", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30"};
-    private static final String[] TEXT_ALIGNMENTS = {"Text Align", "Left", "Center", "Right", "Justified"};
     public static final char BULLET_CHAR = '\u2022';
-    private static final String BULLET_STR = new String(new char[]{BULLET_CHAR});
+    public static final String BULLET_STR = new String(new char[]{BULLET_CHAR});
     public static final String BULLET_STR_WITH_SPACE = BULLET_STR + " ";
     public static final int BULLET_LENGTH = BULLET_STR_WITH_SPACE.length();
     public static final String NUMBERS_ATTR = "NUMBERS";
-    private static final String ELEM = AbstractDocument.ElementNameAttribute;
-    private static final String COMP = StyleConstants.ComponentElementName;
+    public static final String[] TEXT_ALIGNMENTS = {"Text Align", "Left", "Center", "Right", "Justified"};
 
     public void createAndShowGUI() {
 
-        documentUtility = new DocumentUtility(this);
-        paraUtility = new ParaUtility(this, documentUtility);
-        bulletsUtility = new BulletsUtility(documentUtility, paraUtility);
-        numbersUtility = new NumbersUtility(documentUtility, paraUtility);
+        initializeUtilities();
 
-        frame__ = new JFrame();
-        documentUtility.setFrameTitleWithExtn("New file");
         editor__ = new JTextPane();
         JScrollPane editorScrollPane = new JScrollPane(editor__);
 
         editor__.setDocument(documentUtility.getNewDocument());
-        editor__.addKeyListener(new BulletParaKeyListener(this,
-                documentUtility,
-                paraUtility,
-                bulletsUtility));
-        editor__.addKeyListener(new NumbersParaKeyListener(this,
-                documentUtility,
-                paraUtility,
-                numbersUtility));
-        editor__.addCaretListener(new EditorCaretListener(this,
-                documentUtility,
-                paraUtility,
-                numbersUtility));
+
+        addListingKeyLiseners();
 
         undoMgr__ = new UndoManager();
-        EditButtonActionListener editButtonActionListener =
-                new EditButtonActionListener(this);
+
+        EditButtonActionListener editButtonActionListener = new EditButtonActionListener(this);
 
         JButton cutButton = new JButton(new CutAction());
-        cutButton.setHideActionText(true);
-        cutButton.setText("Cut");
-        cutButton.addActionListener(editButtonActionListener);
+        cutButton = setButtonProperties(cutButton, editButtonActionListener, "edit_cut_icon.png");
         JButton copyButton = new JButton(new CopyAction());
-        copyButton.setHideActionText(true);
-        copyButton.setText("Copy");
-        copyButton.addActionListener(editButtonActionListener);
+        copyButton = setButtonProperties(copyButton, editButtonActionListener, "edit_copy_icon.png");
         JButton pasteButton = new JButton(new PasteAction());
-        pasteButton.setHideActionText(true);
-        pasteButton.setText("Paste");
-        pasteButton.addActionListener(editButtonActionListener);
-
+        pasteButton = setButtonProperties(pasteButton, editButtonActionListener, "edit_paste_icon.png");
         JButton boldButton = new JButton(new BoldAction());
-        boldButton.setHideActionText(true);
-        boldButton.setText("Bold");
-        boldButton.addActionListener(editButtonActionListener);
+        boldButton = setButtonProperties(boldButton, editButtonActionListener, "edit_bold_icon.png");
         JButton italicButton = new JButton(new ItalicAction());
-        italicButton.setHideActionText(true);
-        italicButton.setText("Italic");
-        italicButton.addActionListener(editButtonActionListener);
+        italicButton = setButtonProperties(italicButton, editButtonActionListener, "edit_italic_icon.png");
         JButton underlineButton = new JButton(new UnderlineAction());
-        underlineButton.setHideActionText(true);
-        underlineButton.setText("Underline");
-        underlineButton.addActionListener(editButtonActionListener);
+        underlineButton = setButtonProperties(underlineButton, editButtonActionListener, "edit_underline_icon.png");
 
-        JButton colorButton = new JButton("Set Color");
+
+        JButton colorButton = new JButton();
         colorButton.addActionListener(new ColorActionListener(this));
+        colorButton = setButtonProperties(colorButton, null, "edit_color_icon.png");
 
         textAlignComboBox__ = new JComboBox<String>(TEXT_ALIGNMENTS);
         textAlignComboBox__.setEditable(false);
@@ -175,10 +126,13 @@ public class MyEditor {
         fontFamilyComboBox__.setEditable(false);
         fontFamilyComboBox__.addItemListener(new FontFamilyItemListener(this));
 
-        JButton undoButton = new JButton("Undo");
+        JButton undoButton = new JButton();
         undoButton.addActionListener(new UndoActionListener(this, UndoActionType.UNDO));
-        JButton redoButton = new JButton("Redo");
+        undoButton = setButtonProperties(underlineButton, null, "edit_undo_icon.png");
+
+        JButton redoButton = new JButton();
         redoButton.addActionListener(new UndoActionListener(this, UndoActionType.REDO));
+        redoButton = setButtonProperties(redoButton, null, "edit_redo_icon.png");
 
         JButton bulletInsertButton = new JButton("Bullets Insert");
         bulletInsertButton.addActionListener(
@@ -229,24 +183,75 @@ public class MyEditor {
 
         JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel2.add(new JSeparator(SwingConstants.VERTICAL));
+        panel2.add(undoButton);
+        panel2.add(redoButton);
+        panel2.add(new JSeparator(SwingConstants.VERTICAL));
         panel2.add(bulletInsertButton);
         panel2.add(bulletRemoveButton);
         panel2.add(new JSeparator(SwingConstants.VERTICAL));
         panel2.add(numbersInsertButton);
         panel2.add(numbersRemoveButton);
-        panel2.add(new JSeparator(SwingConstants.VERTICAL));
-        panel2.add(undoButton);
-        panel2.add(redoButton);
 
         JPanel toolBarPanel = new JPanel();
         toolBarPanel.setLayout(new BoxLayout(toolBarPanel, BoxLayout.PAGE_AXIS));
         toolBarPanel.add(panel1);
         toolBarPanel.add(panel2);
 
+
+        JMenuBar menuBar = createjMenuBar();
+
+        frame__ = new JFrame();
+        documentUtility.setFrameTitleWithExtn("New file");
+
         frame__.add(toolBarPanel, BorderLayout.NORTH);
         frame__.add(editorScrollPane, BorderLayout.CENTER);
 
+        frame__.setJMenuBar(menuBar);
+
+        frame__.setSize(900, 500);
+        frame__.setLocation(150, 80);
+        frame__.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame__.setVisible(true);
+
+        editor__.requestFocusInWindow();
+    }
+
+    private JButton setButtonProperties(JButton button,
+                                        EditButtonActionListener editButtonActionListener,
+                                        String icon){
+        button.setHideActionText(true);
+        try {
+            Image img = ImageIO.read(getClass().getResource("/icons/" + icon));
+            img = img.getScaledInstance(15,15, Image.SCALE_DEFAULT);
+            button.setIcon(new ImageIcon(img));
+        } catch (IOException ex){
+            System.out.println(ex.getMessage());
+            ex.printStackTrace();
+        }
+        if (editButtonActionListener != null) {
+            button.addActionListener(editButtonActionListener);
+        }
+        return button;
+    }
+
+    private void addListingKeyLiseners() {
+        editor__.addKeyListener(new BulletParaKeyListener(this,
+                documentUtility,
+                paraUtility,
+                bulletsUtility));
+        editor__.addKeyListener(new NumbersParaKeyListener(this,
+                documentUtility,
+                paraUtility,
+                numbersUtility));
+        editor__.addCaretListener(new EditorCaretListener(this,
+                documentUtility,
+                paraUtility,
+                numbersUtility));
+    }
+
+    private JMenuBar createjMenuBar() {
         JMenuBar menuBar = new JMenuBar();
+
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
 
@@ -277,14 +282,14 @@ public class MyEditor {
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
         menuBar.add(fileMenu);
-        frame__.setJMenuBar(menuBar);
+        return menuBar;
+    }
 
-        frame__.setSize(900, 500);
-        frame__.setLocation(150, 80);
-        frame__.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame__.setVisible(true);
-
-        editor__.requestFocusInWindow();
+    private void initializeUtilities() {
+        documentUtility = new DocumentUtility(this);
+        paraUtility = new ParaUtility(this, documentUtility);
+        bulletsUtility = new BulletsUtility(documentUtility, paraUtility);
+        numbersUtility = new NumbersUtility(documentUtility, paraUtility);
     }
 
     /*
