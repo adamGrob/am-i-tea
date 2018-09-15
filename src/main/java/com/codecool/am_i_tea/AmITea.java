@@ -11,9 +11,7 @@ import javafx.scene.web.HTMLEditor;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +48,22 @@ public class AmITea extends Application {
                 saveFile(textToSave, file);
             }
         });
+
+        openFileMenuItem.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html");
+            fileChooser.getExtensionFilters().add(extFilter);
+
+            File file = fileChooser.showOpenDialog(primaryStage);
+
+            String content = "";
+            if (file != null) {
+                content = openFile(file);
+            }
+            editor.setHtmlText(content);
+        });
+
         exitFileMenuItem.setOnAction(actionEvent -> Platform.exit());
 
         fileMenu.getItems().addAll(saveFileMenuItem, openFileMenuItem, exitFileMenuItem);
@@ -66,14 +80,34 @@ public class AmITea extends Application {
     }
 
     private void saveFile(String content, File file){
-        try {
-            FileWriter fileWriter;
+        try (FileWriter fileWriter = new FileWriter(file)){
 
-            fileWriter = new FileWriter(file);
             fileWriter.write(content);
-            fileWriter.close();
         } catch (IOException ex) {
             Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private String openFile(File file){
+
+        String content = "";
+        try (FileReader fileReader = new FileReader(file)){
+
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            StringBuilder contentBuilder = new StringBuilder();
+
+            String currentLine = bufferedReader.readLine();
+            while (currentLine != null){
+                contentBuilder.append(currentLine);
+                currentLine = bufferedReader.readLine();
+            }
+            bufferedReader.close();
+            content = contentBuilder.toString();
+        } catch (IOException ex) {
+            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return content;
     }
 }
