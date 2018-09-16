@@ -2,11 +2,14 @@ package com.codecool.am_i_tea;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
@@ -15,6 +18,8 @@ import javafx.stage.Stage;
 
 import javax.swing.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,7 +71,27 @@ public class AmITea extends Application {
             }
         });
 
-        projectMenu.getItems().addAll(newProjectMenuItem);
+        loadProjectMenuItem.setOnAction(actionEvent -> {
+            List<String> projects = projectService.getAllProjects();
+
+            ListView<String> projectList = new ListView<>();
+            ObservableList<String> items = FXCollections.observableArrayList(projects);
+            projectList.setItems(items);
+
+            StackPane temporaryWindow = new StackPane();
+            temporaryWindow.getChildren().addAll(projectList);
+            Scene tempScene = new Scene(temporaryWindow, 200, 320);
+            Stage tempWindow = new Stage();
+            tempWindow.setTitle("Projects");
+            tempWindow.setScene(tempScene);
+
+            tempWindow.setX(primaryStage.getX() + 12);
+            tempWindow.setY(primaryStage.getY() + 28);
+
+            tempWindow.show();
+        });
+
+        projectMenu.getItems().addAll(newProjectMenuItem, loadProjectMenuItem);
 
         newFileMenuItem.setOnAction(actionEvent -> {
             String fileName = JOptionPane.showInputDialog("File Name");
