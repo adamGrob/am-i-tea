@@ -9,11 +9,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javax.swing.*;
@@ -87,6 +87,14 @@ public class AmITea extends Application {
 
             tempWindow.setX(primaryStage.getX() + 12);
             tempWindow.setY(primaryStage.getY() + 28);
+
+            projectList.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+                    String projectName = projectList.getSelectionModel().getSelectedItem();
+                    projectService.loadProject(projectName);
+                    tempWindow.close();
+                }
+            });
 
             tempWindow.show();
         });
