@@ -2,15 +2,18 @@ package com.codecool.am_i_tea;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +26,7 @@ public class AmITea extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage){
+    public void start(Stage primaryStage) {
         primaryStage.setTitle("Am-I-Tea text editor");
 
         HTMLEditor editor = new HTMLEditor();
@@ -44,7 +47,7 @@ public class AmITea extends Application {
 
             String textToSave = editor.getHtmlText();
 
-            if(file != null){
+            if (file != null) {
                 saveFile(textToSave, file);
             }
         });
@@ -72,6 +75,32 @@ public class AmITea extends Application {
         menuBar.getMenus().add(fileMenu);
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
 
+        Node node = editor.lookup(".top-toolbar");
+        if (node instanceof ToolBar) {
+            ToolBar bar = (ToolBar) node;
+            Button button = new Button("Hyperlink");
+
+            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/images/hyperlink.png")));
+            button.setMinSize(26.0, 22.0);
+            button.setMaxSize(26.0, 22.0);
+            imageView.setFitHeight(16);
+            imageView.setFitWidth(16);
+            button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            button.setGraphic(imageView);
+            button.setTooltip(new Tooltip("Hypermilnk"));
+
+            button.setOnAction(actionEvent -> {
+                String url = JOptionPane.showInputDialog("Enter URL");
+                WebView webView = (WebView) editor.lookup("WebView");
+                String selected = (String) webView.getEngine().executeScript("window.getSelection().toString();");
+                String hyperlinkHtml = "<a href=\"" + url.trim() + "\" title=\"" + selected + "\" target=\"_blank\">" + selected + "</a>";
+                webView.getEngine().executeScript(getInsertHtmlAtCursorJS(hyperlinkHtml));
+            });
+
+            bar.getItems().add(button);
+        }
+
+
         Scene root = new Scene(new VBox(), 640, 480);
         ((VBox) root.getRoot()).getChildren().addAll(menuBar, editor);
 
@@ -79,8 +108,8 @@ public class AmITea extends Application {
         primaryStage.show();
     }
 
-    private void saveFile(String content, File file){
-        try (FileWriter fileWriter = new FileWriter(file)){
+    private void saveFile(String content, File file) {
+        try (FileWriter fileWriter = new FileWriter(file)) {
 
             fileWriter.write(content);
         } catch (IOException ex) {
@@ -88,17 +117,17 @@ public class AmITea extends Application {
         }
     }
 
-    private String openFile(File file){
+    private String openFile(File file) {
 
         String content = "";
-        try (FileReader fileReader = new FileReader(file)){
+        try (FileReader fileReader = new FileReader(file)) {
 
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             StringBuilder contentBuilder = new StringBuilder();
 
             String currentLine = bufferedReader.readLine();
-            while (currentLine != null){
+            while (currentLine != null) {
                 contentBuilder.append(currentLine);
                 currentLine = bufferedReader.readLine();
             }
@@ -109,5 +138,21 @@ public class AmITea extends Application {
         }
 
         return content;
+    }
+
+    private String getInsertHtmlAtCursorJS(String html) {
+        return "insertHtmlAtCursor('" + html + "');"
+                + "function insertHtmlAtCursor(html) {\n"
+                + " var range, node;\n"
+                + " if (window.getSelection && window.getSelection().getRangeAt) {\n"
+                + " window.getSelection().deleteFromDocument();\n"
+                + " range = window.getSelection().getRangeAt(0);\n"
+                + " node = range.createContextualFragment(html);\n"
+                + " range.insertNode(node);\n"
+                + " } else if (document.selection && document.selection.createRange) {\n"
+                + " document.selection.createRange().pasteHTML(html);\n"
+                + " document.selection.clear();"
+                + " }\n"
+                + "}";
     }
 }
