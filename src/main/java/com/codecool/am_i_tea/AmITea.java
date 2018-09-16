@@ -21,12 +21,18 @@ import java.util.logging.Logger;
 import static javafx.application.Application.launch;
 
 public class AmITea extends Application {
+
+    private TextFileService textFileService;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
+
+        textFileService = new TextFileService();
+
         primaryStage.setTitle("Am-I-Tea text editor");
 
         HTMLEditor editor = new HTMLEditor();
@@ -37,20 +43,7 @@ public class AmITea extends Application {
         final MenuItem openFileMenuItem = new MenuItem("Open");
         final MenuItem exitFileMenuItem = new MenuItem("Exit");
 
-        saveFileMenuItem.setOnAction(actionEvent -> {
-            FileChooser fileChooser = new FileChooser();
-
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html");
-            fileChooser.getExtensionFilters().add(extFilter);
-
-            File file = fileChooser.showSaveDialog(primaryStage);
-
-            String textToSave = editor.getHtmlText();
-
-            if (file != null) {
-                saveFile(textToSave, file);
-            }
-        });
+        saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(primaryStage, editor));
 
         openFileMenuItem.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
@@ -106,15 +99,6 @@ public class AmITea extends Application {
 
         primaryStage.setScene(root);
         primaryStage.show();
-    }
-
-    private void saveFile(String content, File file) {
-        try (FileWriter fileWriter = new FileWriter(file)) {
-
-            fileWriter.write(content);
-        } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     private String openFile(File file) {
