@@ -110,7 +110,7 @@ public class AmITea extends Application {
             saveFileMenuItem.setDisable(true);
             editor.setVisible(false);
         });
-        
+
         exitMenuItem.setOnAction(actionEvent -> Platform.exit());
 
         projectMenu.getItems().addAll(newProjectMenuItem,
@@ -132,7 +132,36 @@ public class AmITea extends Application {
         saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(projectDAO.getCurrentProject().getPath(), fileDAO.getCurrentFile().getName(), editor));
         saveFileMenuItem.setDisable(true);
 
-        openFileMenuItem.setOnAction(actionEvent -> textFileService.openTextFile(primaryStage, editor));
+        openFileMenuItem.setOnAction(actionEvent -> {
+            List<String> files = textFileService.getAllFilesOfProject(projectDAO.getCurrentProject().getName());
+
+            ListView<String> fileList = new ListView<>();
+            ObservableList<String> items = FXCollections.observableArrayList(files);
+            fileList.setItems(items);
+
+            StackPane temporaryWindow = new StackPane();
+            temporaryWindow.getChildren().addAll(fileList);
+            Scene tempScene = new Scene(temporaryWindow, 200, 320);
+            Stage tempWindow = new Stage();
+            tempWindow.setTitle(projectDAO.getCurrentProject().getName());
+            tempWindow.setScene(tempScene);
+
+            tempWindow.setX(primaryStage.getX() + 12);
+            tempWindow.setY(primaryStage.getY() + 28);
+
+            fileList.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+                    String fullFileName = fileList.getSelectionModel().getSelectedItem();
+                    String fileName = fullFileName.split("\\.")[0];
+                    textFileService.openTextFile(fileName, projectDAO.getCurrentProject().getPath(), editor);
+                    saveFileMenuItem.setDisable(false);
+                    editor.setVisible(true);
+                    tempWindow.close();
+                }
+            });
+
+            tempWindow.show();
+        });
 
 
         fileMenu.getItems().addAll(newFileMenuItem, saveFileMenuItem, openFileMenuItem);
