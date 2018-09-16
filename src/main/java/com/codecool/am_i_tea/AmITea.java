@@ -65,6 +65,8 @@ public class AmITea extends Application {
             String projectName = JOptionPane.showInputDialog("Project Name");
             if (projectService.createProject(projectName)) {
                 fileMenu.setDisable(false);
+                editor.setVisible(false);
+                editor.setHtmlText("");
                 //todo show editor window and other menus only then
             } else {
                 // todo show error message
@@ -93,6 +95,8 @@ public class AmITea extends Application {
                     String projectName = projectList.getSelectionModel().getSelectedItem();
                     projectService.loadProject(projectName);
                     fileMenu.setDisable(false);
+                    editor.setVisible(false);
+                    editor.setHtmlText("");
                     tempWindow.close();
                 }
             });
@@ -109,6 +113,7 @@ public class AmITea extends Application {
             fileMenu.setDisable(true);
             saveFileMenuItem.setDisable(true);
             editor.setVisible(false);
+            editor.setHtmlText("");
         });
 
         exitMenuItem.setOnAction(actionEvent -> Platform.exit());
@@ -123,6 +128,7 @@ public class AmITea extends Application {
             if (textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName)) {
                 saveFileMenuItem.setDisable(false);
                 editor.setVisible(true);
+                editor.setHtmlText("");
             } else {
                 // todo show error message
             }
