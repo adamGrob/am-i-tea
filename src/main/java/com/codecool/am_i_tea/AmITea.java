@@ -92,6 +92,7 @@ public class AmITea extends Application {
                 if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
                     String projectName = projectList.getSelectionModel().getSelectedItem();
                     projectService.loadProject(projectName);
+                    fileMenu.setDisable(false);
                     tempWindow.close();
                 }
             });
