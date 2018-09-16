@@ -24,6 +24,8 @@ public class AmITea extends Application {
 
     private TextFileService textFileService;
     private ProjectService projectService;
+    private ProjectDAO projectDAO;
+    private TextFileDAO fileDAO;
 
     public static void main(String[] args) {
         launch(args);
@@ -32,8 +34,10 @@ public class AmITea extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        textFileService = new TextFileService();
-        projectService = new ProjectService();
+        projectDAO = new ProjectDAO();
+        fileDAO = new TextFileDAO();
+        textFileService = new TextFileService(fileDAO);
+        projectService = new ProjectService(projectDAO);
 
         primaryStage.setTitle("Am-I-Tea text editor");
 
@@ -42,28 +46,41 @@ public class AmITea extends Application {
         final Menu fileMenu = new Menu("File");
         final Menu projectMenu = new Menu("Project");
 
+        final MenuItem newFileMenuItem = new MenuItem("New");
         final MenuItem saveFileMenuItem = new MenuItem("Save");
         final MenuItem openFileMenuItem = new MenuItem("Open");
         final MenuItem exitFileMenuItem = new MenuItem("Exit");
 
         final MenuItem newProjectMenuItem = new MenuItem("New");
+        final MenuItem loadProjectMenuItem = new MenuItem("Load");
+        final MenuItem closeProjectMenuItem = new MenuItem("Close");
 
         newProjectMenuItem.setOnAction(actionEvent -> {
             String projectName = JOptionPane.showInputDialog("Project Name");
-            projectService.createProject(projectName);
+            if (projectService.createProject(projectName)) {
+                //todo show editor window and other menus only then
+            } else {
+                // todo show error message
+            }
+
         });
 
-        saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(primaryStage, editor));
+        newFileMenuItem.setOnAction(actionEvent -> {
+            String fileName = JOptionPane.showInputDialog("File Name");
+            textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName);
+        });
+
+        saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(projectDAO.getCurrentProject().getPath(), fileDAO.getCurrentFile().getName(), editor));
 
         openFileMenuItem.setOnAction(actionEvent -> textFileService.openTextFile(primaryStage, editor));
 
         exitFileMenuItem.setOnAction(actionEvent -> Platform.exit());
 
-        fileMenu.getItems().addAll(saveFileMenuItem, openFileMenuItem, exitFileMenuItem);
+        fileMenu.getItems().addAll(newFileMenuItem, saveFileMenuItem, openFileMenuItem, exitFileMenuItem);
         projectMenu.getItems().addAll(newProjectMenuItem);
 
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(fileMenu, projectMenu);
+        menuBar.getMenus().addAll(projectMenu, fileMenu);
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
 
         Node node = editor.lookup(".top-toolbar");
