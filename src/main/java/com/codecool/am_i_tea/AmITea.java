@@ -23,6 +23,7 @@ import static javafx.application.Application.launch;
 public class AmITea extends Application {
 
     private TextFileService textFileService;
+    private ProjectService projectService;
 
     public static void main(String[] args) {
         launch(args);
@@ -32,16 +33,25 @@ public class AmITea extends Application {
     public void start(Stage primaryStage) {
 
         textFileService = new TextFileService();
+        projectService = new ProjectService();
 
         primaryStage.setTitle("Am-I-Tea text editor");
 
         HTMLEditor editor = new HTMLEditor();
 
         final Menu fileMenu = new Menu("File");
+        final Menu projectMenu = new Menu("Project");
 
         final MenuItem saveFileMenuItem = new MenuItem("Save");
         final MenuItem openFileMenuItem = new MenuItem("Open");
         final MenuItem exitFileMenuItem = new MenuItem("Exit");
+
+        final MenuItem newProjectMenuItem = new MenuItem("New");
+
+        newProjectMenuItem.setOnAction(actionEvent -> {
+            String projectName = JOptionPane.showInputDialog("Project Name");
+            projectService.createProject(projectName);
+        });
 
         saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(primaryStage, editor));
 
@@ -50,9 +60,10 @@ public class AmITea extends Application {
         exitFileMenuItem.setOnAction(actionEvent -> Platform.exit());
 
         fileMenu.getItems().addAll(saveFileMenuItem, openFileMenuItem, exitFileMenuItem);
+        projectMenu.getItems().addAll(newProjectMenuItem);
 
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().add(fileMenu);
+        menuBar.getMenus().addAll(fileMenu, projectMenu);
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
 
         Node node = editor.lookup(".top-toolbar");
