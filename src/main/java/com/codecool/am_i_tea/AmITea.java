@@ -42,6 +42,7 @@ public class AmITea extends Application {
         primaryStage.setTitle("Am-I-Tea text editor");
 
         HTMLEditor editor = new HTMLEditor();
+        editor.setVisible(false);
 
         final Menu fileMenu = new Menu("File");
         final Menu projectMenu = new Menu("Project");
@@ -58,26 +59,35 @@ public class AmITea extends Application {
         newProjectMenuItem.setOnAction(actionEvent -> {
             String projectName = JOptionPane.showInputDialog("Project Name");
             if (projectService.createProject(projectName)) {
+                fileMenu.setDisable(false);
                 //todo show editor window and other menus only then
+            } else {
+                // todo show error message
+            }
+        });
+
+        projectMenu.getItems().addAll(newProjectMenuItem);
+
+        newFileMenuItem.setOnAction(actionEvent -> {
+            String fileName = JOptionPane.showInputDialog("File Name");
+            if (textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName)) {
+                saveFileMenuItem.setDisable(false);
+                editor.setVisible(true);
             } else {
                 // todo show error message
             }
 
         });
 
-        newFileMenuItem.setOnAction(actionEvent -> {
-            String fileName = JOptionPane.showInputDialog("File Name");
-            textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName);
-        });
-
         saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(projectDAO.getCurrentProject().getPath(), fileDAO.getCurrentFile().getName(), editor));
+        saveFileMenuItem.setDisable(true);
 
         openFileMenuItem.setOnAction(actionEvent -> textFileService.openTextFile(primaryStage, editor));
 
         exitFileMenuItem.setOnAction(actionEvent -> Platform.exit());
 
         fileMenu.getItems().addAll(newFileMenuItem, saveFileMenuItem, openFileMenuItem, exitFileMenuItem);
-        projectMenu.getItems().addAll(newProjectMenuItem);
+        fileMenu.setDisable(true);
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(projectMenu, fileMenu);
