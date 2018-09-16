@@ -10,34 +10,56 @@ import java.util.logging.Logger;
 
 public class TextFileService {
 
-    public void saveTextFile(Stage primaryStage, HTMLEditor editor){
-        FileChooser fileChooser = new FileChooser();
+    private TextFileDAO fileDAO;
 
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html");
-            fileChooser.getExtensionFilters().add(extFilter);
-
-            File file = fileChooser.showSaveDialog(primaryStage);
-
-            String textToSave = editor.getHtmlText();
-
-            if (file != null) {
-                saveFile(textToSave, file);
-            }
+    public TextFileService(TextFileDAO fileDAO) {
+        this.fileDAO = fileDAO;
     }
 
-    public void openTextFile(Stage primaryStage, HTMLEditor editor){
+    public boolean createNewTextFile(String projectPath, String fileName){
+        File file = new File(projectPath + File.separator + fileName + ".html");
+        try {
+            if (file.createNewFile()){
+                System.out.println("File created successfully!");
+                fileDAO.setCurrentFile(new TextFile(fileName));
+                return true;
+            } else {
+                System.out.println("File already exists. Choose a unique name!");
+                return false;
+            }
+        } catch (IOException ex){
+            System.out.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    public void saveTextFile(String projectPath, String fileName, HTMLEditor editor) {
+
+        File file = new File(projectPath + File.separator + fileName + ".html");
+
+        String textToSave = editor.getHtmlText();
+
+        if (file.exists()) {
+            saveFile(textToSave, file);
+            System.out.println("File saved successfully!");
+        } else {
+            System.out.println("The file doesn't exist!");
+        }
+    }
+
+    public void openTextFile(Stage primaryStage, HTMLEditor editor) {
         FileChooser fileChooser = new FileChooser();
 
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html");
-            fileChooser.getExtensionFilters().add(extFilter);
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html");
+        fileChooser.getExtensionFilters().add(extFilter);
 
-            File file = fileChooser.showOpenDialog(primaryStage);
+        File file = fileChooser.showOpenDialog(primaryStage);
 
-            String content = "";
-            if (file != null) {
-                content = openFile(file);
-            }
-            editor.setHtmlText(content);
+        String content = "";
+        if (file != null) {
+            content = openFile(file);
+        }
+        editor.setHtmlText(content);
     }
 
     private void saveFile(String content, File file) {
