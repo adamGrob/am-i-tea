@@ -34,6 +34,18 @@ public class ProjectService {
         }
     }
 
+    public void loadProject(String projectName) {
+        String homeFolder = System.getProperty("user.home");
+        String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
+        File project = new File(projectPath);
+        if (project.exists()){
+            projectDAO.setCurrentProject(new Project(projectName, projectPath));
+            System.out.println("Successfully opened project!");
+        } else {
+            System.out.println("Couldn't open project!");
+        }
+    }
+
     public List<String> getAllProjects() {
         String homeFolder = System.getProperty("user.home");
         String path = homeFolder + File.separator + "AmITea";
