@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+
+<BorderPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.codecool.paintFx.controller.PaintController">
+    <top>
+        <VBox>
+            <MenuBar>
+                <Menu text="File">
+                    <MenuItem onAction="#onSave" text="Save" />
+                    <MenuItem onAction="#onExit" text="Exit" />
+
+                </Menu>
+            </MenuBar>
+
+            <ToolBar>
+                    <HBox alignment="CENTER" spacing="5">
+                        <TextField fx:id="brushSize" text="11" />
+                        <ColorPicker fx:id="colorPicker">
+                            <value>
+                                <Color blue="0.0" green="0.0" red="0.0" />
+                            </value>
+                        </ColorPicker>
+                        <CheckBox fx:id="lineSnapper" disable="true">
+                            Snap
+                        </CheckBox>
+                    </HBox>
+                     <Button fx:id="undo">
+                            Undo
+                        </Button>
+            <Button fx:id="redo" mnemonicParsing="false" text="Redo" />
+            </ToolBar>
+            <ToolBar>
+
+                <HBox alignment="CENTER" spacing="5">
+                    <ToggleButton fx:id="straightLineChecked" text="Straight Line">
+                  <toggleGroup>
+                     <ToggleGroup fx:id="toggleGroup1" />
+                  </toggleGroup></ToggleButton>
+                    <ToggleButton fx:id="square" toggleGroup="$toggleGroup1">
+                        Square
+                    </ToggleButton>
+                    <ToggleButton fx:id="circle" toggleGroup="$toggleGroup1">
+                        Circle
+                    </ToggleButton>
+                </HBox>
+            </ToolBar>
+        </VBox>
+    </top>
+
+    <center>
+        <Canvas fx:id="canvas" height="600" width="800" />
+    </center>
+
+</BorderPane>
