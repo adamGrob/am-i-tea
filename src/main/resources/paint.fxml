@@ -63,7 +63,7 @@
     </top>
 
     <center>
-        <Canvas fx:id="canvas" height="600" width="800" />
+        <Canvas fx:id="canvas" height="420" width="640" />
     </center>
 
 </BorderPane>
