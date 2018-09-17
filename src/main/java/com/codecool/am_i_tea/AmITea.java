@@ -1,5 +1,6 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -45,6 +46,9 @@ public class AmITea extends Application {
         fileDAO = new TextFileDAO();
         textFileService = new TextFileService(fileDAO);
         projectService = new ProjectService(projectDAO);
+
+        PaintService.setfileDAO(fileDAO);
+        PaintService.setProjectDAO(projectDAO);
 
         primaryStage.setTitle("Am-I-Tea text editor");
 
