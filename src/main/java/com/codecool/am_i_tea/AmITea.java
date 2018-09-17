@@ -1,7 +1,228 @@
 package com.codecool.am_i_tea;
 
-public class AmITea {
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.web.HTMLEditor;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
+
+import javax.swing.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static javafx.application.Application.launch;
+
+public class AmITea extends Application {
+
+    private TextFileService textFileService;
+    private ProjectService projectService;
+    private ProjectDAO projectDAO;
+    private TextFileDAO fileDAO;
+
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+
+        projectDAO = new ProjectDAO();
+        fileDAO = new TextFileDAO();
+        textFileService = new TextFileService(fileDAO);
+        projectService = new ProjectService(projectDAO);
+
+        primaryStage.setTitle("Am-I-Tea text editor");
+
+        HTMLEditor editor = new HTMLEditor();
+        editor.setVisible(false);
+
+        final Menu fileMenu = new Menu("File");
+        final Menu projectMenu = new Menu("Project");
+
+        final MenuItem newFileMenuItem = new MenuItem("New");
+        final MenuItem saveFileMenuItem = new MenuItem("Save");
+        final MenuItem openFileMenuItem = new MenuItem("Open");
+
+        final MenuItem newProjectMenuItem = new MenuItem("New");
+        final MenuItem loadProjectMenuItem = new MenuItem("Load");
+        final MenuItem closeProjectMenuItem = new MenuItem("Close");
+        final MenuItem exitMenuItem = new MenuItem("Exit");
+
+        newProjectMenuItem.setOnAction(actionEvent -> {
+            String projectName = JOptionPane.showInputDialog("Project Name");
+            if (projectService.createProject(projectName)) {
+                fileMenu.setDisable(false);
+                editor.setVisible(false);
+                editor.setHtmlText("");
+                //todo show editor window and other menus only then
+            } else {
+                // todo show error message
+            }
+        });
+
+        loadProjectMenuItem.setOnAction(actionEvent -> {
+            List<String> projects = projectService.getAllProjects();
+
+            ListView<String> projectList = new ListView<>();
+            ObservableList<String> items = FXCollections.observableArrayList(projects);
+            projectList.setItems(items);
+
+            StackPane temporaryWindow = new StackPane();
+            temporaryWindow.getChildren().addAll(projectList);
+            Scene tempScene = new Scene(temporaryWindow, 200, 320);
+            Stage tempWindow = new Stage();
+            tempWindow.setTitle("Projects");
+            tempWindow.setScene(tempScene);
+
+            tempWindow.setX(primaryStage.getX() + 12);
+            tempWindow.setY(primaryStage.getY() + 28);
+
+            projectList.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+                    String projectName = projectList.getSelectionModel().getSelectedItem();
+                    projectService.loadProject(projectName);
+                    fileMenu.setDisable(false);
+                    editor.setVisible(false);
+                    editor.setHtmlText("");
+                    tempWindow.close();
+                }
+            });
+
+            tempWindow.show();
+        });
+
+        closeProjectMenuItem.setOnAction(actionEvent -> {
+            // todo save current file (files?) before closing them
+            System.out.println("Project closed!");
+
+            fileDAO.setCurrentFile(null);
+            projectDAO.setCurrentProject(null);
+            fileMenu.setDisable(true);
+            saveFileMenuItem.setDisable(true);
+            editor.setVisible(false);
+            editor.setHtmlText("");
+        });
+
+        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
+
+        projectMenu.getItems().addAll(newProjectMenuItem,
+                loadProjectMenuItem,
+                closeProjectMenuItem,
+                exitMenuItem);
+
+        newFileMenuItem.setOnAction(actionEvent -> {
+            String fileName = JOptionPane.showInputDialog("File Name");
+            if (textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName)) {
+                saveFileMenuItem.setDisable(false);
+                editor.setVisible(true);
+                editor.setHtmlText("");
+            } else {
+                // todo show error message
+            }
+
+        });
+
+        saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(projectDAO.getCurrentProject().getPath(), fileDAO.getCurrentFile().getName(), editor));
+        saveFileMenuItem.setDisable(true);
+
+        openFileMenuItem.setOnAction(actionEvent -> {
+            List<String> files = textFileService.getAllFilesOfProject(projectDAO.getCurrentProject().getName());
+
+            ListView<String> fileList = new ListView<>();
+            ObservableList<String> items = FXCollections.observableArrayList(files);
+            fileList.setItems(items);
+
+            StackPane temporaryWindow = new StackPane();
+            temporaryWindow.getChildren().addAll(fileList);
+            Scene tempScene = new Scene(temporaryWindow, 200, 320);
+            Stage tempWindow = new Stage();
+            tempWindow.setTitle(projectDAO.getCurrentProject().getName());
+            tempWindow.setScene(tempScene);
+
+            tempWindow.setX(primaryStage.getX() + 12);
+            tempWindow.setY(primaryStage.getY() + 28);
+
+            fileList.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+                    String fullFileName = fileList.getSelectionModel().getSelectedItem();
+                    String fileName = fullFileName.split("\\.")[0];
+                    textFileService.openTextFile(fileName, projectDAO.getCurrentProject().getPath(), editor);
+                    saveFileMenuItem.setDisable(false);
+                    editor.setVisible(true);
+                    tempWindow.close();
+                }
+            });
+
+            tempWindow.show();
+        });
+
+
+        fileMenu.getItems().addAll(newFileMenuItem, saveFileMenuItem, openFileMenuItem);
+        fileMenu.setDisable(true);
+
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().addAll(projectMenu, fileMenu);
+        menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+
+        Node node = editor.lookup(".top-toolbar");
+        if (node instanceof ToolBar) {
+            ToolBar bar = (ToolBar) node;
+            Button button = new Button("Hyperlink");
+
+            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/images/hyperlink.png")));
+            button.setMinSize(26.0, 22.0);
+            button.setMaxSize(26.0, 22.0);
+            imageView.setFitHeight(16);
+            imageView.setFitWidth(16);
+            button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            button.setGraphic(imageView);
+            button.setTooltip(new Tooltip("Hypermilnk"));
+
+            button.setOnAction(actionEvent -> {
+                String url = JOptionPane.showInputDialog("Enter URL");
+                WebView webView = (WebView) editor.lookup("WebView");
+                String selected = (String) webView.getEngine().executeScript("window.getSelection().toString();");
+                String hyperlinkHtml = "<a href=\"" + url.trim() + "\" title=\"" + selected + "\" target=\"_blank\">" + selected + "</a>";
+                webView.getEngine().executeScript(getInsertHtmlAtCursorJS(hyperlinkHtml));
+            });
+
+            bar.getItems().add(button);
+        }
+
+
+        Scene root = new Scene(new VBox(), 640, 480);
+        ((VBox) root.getRoot()).getChildren().addAll(menuBar, editor);
+
+        primaryStage.setScene(root);
+        primaryStage.show();
+    }
+
+    private String getInsertHtmlAtCursorJS(String html) {
+        return "insertHtmlAtCursor('" + html + "');"
+                + "function insertHtmlAtCursor(html) {\n"
+                + " var range, node;\n"
+                + " if (window.getSelection && window.getSelection().getRangeAt) {\n"
+                + " window.getSelection().deleteFromDocument();\n"
+                + " range = window.getSelection().getRangeAt(0);\n"
+                + " node = range.createContextualFragment(html);\n"
+                + " range.insertNode(node);\n"
+                + " } else if (document.selection && document.selection.createRange) {\n"
+                + " document.selection.createRange().pasteHTML(html);\n"
+                + " document.selection.clear();"
+                + " }\n"
+                + "}";
     }
 }
