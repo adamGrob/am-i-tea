@@ -1,5 +1,9 @@
 package com.codecool.paintFx.controller;
+
+import com.codecool.am_i_tea.ProjectDAO;
+import com.codecool.am_i_tea.TextFileDAO;
 import com.codecool.paintFx.model.*;
+import com.codecool.paintFx.service.PaintService;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -10,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
+
 import javax.imageio.ImageIO;
 
 import java.io.File;
@@ -30,6 +35,9 @@ public class PaintController {
     private List<StraightLine> straightLineList;
 
     private Stack<MyShape> redoStack = new Stack<>();
+
+    private TextFileDAO fileDAO;
+    private ProjectDAO projectDAO;
 
     @FXML
     private Canvas canvas;
@@ -86,7 +94,7 @@ public class PaintController {
 
     private void handleRedo(GraphicsContext graphicsContext) {
         redo.setOnAction(event -> {
-            if(redoStack.size() != 0) {
+            if (redoStack.size() != 0) {
                 MyShape shapeToRedo = redoStack.pop();
                 drawnShapeList.add(shapeToRedo);
                 redraw(drawnShapeList, graphicsContext);
@@ -95,9 +103,9 @@ public class PaintController {
     }
 
     private void handleUndo(GraphicsContext graphicsContext) {
-        undo.setOnAction(e->{
-            if(drawnShapeList.size() != 0) {
-                MyShape shapeToRemove = drawnShapeList.get(drawnShapeList.size()-1);
+        undo.setOnAction(e -> {
+            if (drawnShapeList.size() != 0) {
+                MyShape shapeToRemove = drawnShapeList.get(drawnShapeList.size() - 1);
                 redoStack.push(shapeToRemove);
                 drawnShapeList.remove(shapeToRemove);
                 redraw(drawnShapeList, graphicsContext);
@@ -106,13 +114,13 @@ public class PaintController {
     }
 
     private void handleSnapCheckBoxDisable() {
-        straightLineChecked.setOnAction( event -> {
+        straightLineChecked.setOnAction(event -> {
             lineSnapper.setDisable(false);
         });
-        square.setOnAction( event -> {
+        square.setOnAction(event -> {
             lineSnapper.setDisable(true);
         });
-        circle.setOnAction( event -> {
+        circle.setOnAction(event -> {
             lineSnapper.setDisable(true);
         });
     }
@@ -143,7 +151,7 @@ public class PaintController {
         double endX = mouseReleaseEvent.getX() - size / 2;
         double endY = mouseReleaseEvent.getY() - size / 2;
         if (straightLineChecked.isSelected()) {
-            if(lineSnapper.isSelected()) {
+            if (lineSnapper.isSelected()) {
                 LinePositionController linePositionController = new LinePositionController();
                 Position position = linePositionController.PositionSnapper(endX, endY, drawnShapeList, rangeToSnap);
                 endX = position.x;
@@ -151,11 +159,11 @@ public class PaintController {
             }
             setupBrush(graphicsContext, size, colorPicker.getValue());
             graphicsContext.strokeLine(startX, startY, endX, endY);
-            drawnShapeList.add(new StraightLine(startX, startY, endX, endY,colorPicker.getValue(), size));
+            drawnShapeList.add(new StraightLine(startX, startY, endX, endY, colorPicker.getValue(), size));
         } else if (square.isSelected()) {
             drawnShapeList.add(new MyRectangle(startX, startY, Math.abs(endX - startX), Math.abs(endY - startY), colorPicker.getValue(), size));
         } else if (circle.isSelected()) {
-          drawnShapeList.add(new MyOval(startX, startY, Math.abs(endX - startX), Math.abs(endY - startY), colorPicker.getValue(), size));
+            drawnShapeList.add(new MyOval(startX, startY, Math.abs(endX - startX), Math.abs(endY - startY), colorPicker.getValue(), size));
         } else {
             CustomLine customLine = new CustomLine(straightLineList);
             drawnShapeList.add(customLine);
@@ -163,12 +171,8 @@ public class PaintController {
     }
 
     public void onSave() {
-        try {
-            Image snapshot = canvas.snapshot(null, null);
-            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File("paint.png"));
-        } catch (Exception e) {
-            System.out.println("Failed to save image!");
-        }
+        Image snapshot = canvas.snapshot(null, null);
+        PaintService.saveImage(snapshot);
     }
 
     public void onExit() {
@@ -186,9 +190,9 @@ public class PaintController {
             prevX = currX;
             prevY = currY;
         } else if (shapeEnum.equals(ShapeEnum.STRAIGHTLINE)) {
-            if(lineSnapper.isSelected()) {
+            if (lineSnapper.isSelected()) {
                 LinePositionController linePositionController = new LinePositionController();
-                Position startPosition  = linePositionController.PositionSnapper(startX, startY, drawnShapeList, rangeToSnap);
+                Position startPosition = linePositionController.PositionSnapper(startX, startY, drawnShapeList, rangeToSnap);
                 Position endPosition = linePositionController.PositionSnapper(currX, currY, drawnShapeList, rangeToSnap);
                 startX = startPosition.x;
                 startY = startPosition.y;
