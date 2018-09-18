@@ -1,9 +1,12 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -43,6 +46,9 @@ public class AmITea extends Application {
         fileDAO = new TextFileDAO();
         textFileService = new TextFileService(fileDAO);
         projectService = new ProjectService(projectDAO);
+
+        PaintService.setfileDAO(fileDAO);
+        PaintService.setProjectDAO(projectDAO);
 
         primaryStage.setTitle("Am-I-Tea text editor");
 
@@ -180,18 +186,30 @@ public class AmITea extends Application {
         Node node = editor.lookup(".top-toolbar");
         if (node instanceof ToolBar) {
             ToolBar bar = (ToolBar) node;
-            Button button = new Button("Hyperlink");
 
-            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/images/hyperlink.png")));
-            button.setMinSize(26.0, 22.0);
-            button.setMaxSize(26.0, 22.0);
-            imageView.setFitHeight(16);
-            imageView.setFitWidth(16);
-            button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            button.setGraphic(imageView);
-            button.setTooltip(new Tooltip("Hypermilnk"));
+            Button drawButton = new Button("Draw");
+            ImageView drawImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/draw.png")));
+            drawButton.setMinSize(26.0, 22.0);
+            drawButton.setMaxSize(26.0, 22.0);
+            drawImageView.setFitHeight(16);
+            drawImageView.setFitWidth(16);
+            drawButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            drawButton.setGraphic(drawImageView);
+            drawButton.setMinSize(26.0, 22.0);
+            drawButton.setMaxSize(26.0, 22.0);
+            drawButton.setTooltip(new Tooltip("Draw"));
 
-            button.setOnAction(actionEvent -> {
+            Button linkButton = new Button("Hyperlink");
+            ImageView linkImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/hyperlink.png")));
+            linkButton.setMinSize(26.0, 22.0);
+            linkButton.setMaxSize(26.0, 22.0);
+            linkImageView.setFitHeight(16);
+            linkImageView.setFitWidth(16);
+            linkButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            linkButton.setGraphic(linkImageView);
+            linkButton.setTooltip(new Tooltip("Hypermilnk"));
+
+            linkButton.setOnAction(actionEvent -> {
                 String url = JOptionPane.showInputDialog("Enter URL");
                 WebView webView = (WebView) editor.lookup("WebView");
                 String selected = (String) webView.getEngine().executeScript("window.getSelection().toString();");
@@ -199,7 +217,22 @@ public class AmITea extends Application {
                 webView.getEngine().executeScript(getInsertHtmlAtCursorJS(hyperlinkHtml));
             });
 
-            bar.getItems().add(button);
+            drawButton.setOnAction(actionEvent -> {
+                Stage stage = new Stage();
+                stage.setTitle("Paint");
+                try {
+                    stage.setScene(new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml"))));
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                stage.setWidth(640);
+                stage.setHeight(480);
+                stage.setX(primaryStage.getX() + 320);
+                stage.setY(primaryStage.getY() + 20);
+                stage.show();
+            });
+
+            bar.getItems().addAll(linkButton, drawButton);
         }
 
 
