@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
@@ -218,27 +219,32 @@ public class AmITea extends Application {
             });
 
             drawButton.setOnAction(actionEvent -> {
-                Stage stage = new Stage();
-                stage.setTitle("Paint");
+
+
                 try {
-                    stage.setScene(new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml"))));
+                    Scene drawScene = new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml")));
+                    drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
+                    StackPane wrapper = new StackPane();
+                    wrapper.getChildren().add(primaryStage.getScene().getRoot());
+                    wrapper.getChildren().add(drawScene.getRoot());
+
+                    Scene scene = new Scene(wrapper, 640, 480);
+                    primaryStage.setScene(scene);
+
+
+
                 } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
-                stage.setWidth(640);
-                stage.setHeight(480);
-                stage.setX(primaryStage.getX() + 320);
-                stage.setY(primaryStage.getY() + 20);
-                stage.show();
+                primaryStage.setWidth(640);
+                primaryStage.setHeight(480);
+                primaryStage.show();
             });
 
             bar.getItems().addAll(linkButton, drawButton);
         }
-
-
         Scene root = new Scene(new VBox(), 640, 480);
         ((VBox) root.getRoot()).getChildren().addAll(menuBar, editor);
-
         primaryStage.setScene(root);
         primaryStage.show();
     }
