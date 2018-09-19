@@ -1,5 +1,6 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -13,9 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -31,10 +30,13 @@ import static javafx.application.Application.launch;
 
 public class AmITea extends Application {
 
+    private StackPane wrapper;
+    private Scene drawScene;
     private TextFileService textFileService;
     private ProjectService projectService;
     private ProjectDAO projectDAO;
     private TextFileDAO fileDAO;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -54,7 +56,7 @@ public class AmITea extends Application {
         primaryStage.setTitle("Am-I-Tea text editor");
 
         HTMLEditor editor = new HTMLEditor();
-        editor.setVisible(false);
+        editor.setVisible(true);
 
         final Menu fileMenu = new Menu("File");
         final Menu projectMenu = new Menu("Project");
@@ -139,7 +141,6 @@ public class AmITea extends Application {
             } else {
                 // todo show error message
             }
-
         });
 
         saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(projectDAO.getCurrentProject().getPath(), fileDAO.getCurrentFile().getName(), editor));
@@ -158,10 +159,8 @@ public class AmITea extends Application {
             Stage tempWindow = new Stage();
             tempWindow.setTitle(projectDAO.getCurrentProject().getName());
             tempWindow.setScene(tempScene);
-
             tempWindow.setX(primaryStage.getX() + 12);
             tempWindow.setY(primaryStage.getY() + 28);
-
             fileList.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
                     String fullFileName = fileList.getSelectionModel().getSelectedItem();
@@ -172,18 +171,13 @@ public class AmITea extends Application {
                     tempWindow.close();
                 }
             });
-
             tempWindow.show();
         });
-
-
         fileMenu.getItems().addAll(newFileMenuItem, saveFileMenuItem, openFileMenuItem);
         fileMenu.setDisable(true);
-
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(projectMenu, fileMenu);
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
-
         Node node = editor.lookup(".top-toolbar");
         if (node instanceof ToolBar) {
             ToolBar bar = (ToolBar) node;
@@ -219,34 +213,56 @@ public class AmITea extends Application {
             });
 
             drawButton.setOnAction(actionEvent -> {
-
-
-                try {
-                    Scene drawScene = new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml")));
-                    drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
-                    StackPane wrapper = new StackPane();
-                    wrapper.getChildren().add(primaryStage.getScene().getRoot());
-                    wrapper.getChildren().add(drawScene.getRoot());
-
-                    Scene scene = new Scene(wrapper, 640, 480);
-                    primaryStage.setScene(scene);
-
-
-
-                } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
-                }
-                primaryStage.setWidth(640);
-                primaryStage.setHeight(480);
-                primaryStage.show();
+                wrapper.getChildren().get(1).setMouseTransparent(false);
+                Node topToolBar = editor.lookup(".top-toolbar");
+                Node bottomToolBar = editor.lookup(".bottom-toolbar");
+                topToolBar.setVisible(false);
+                bottomToolBar.setVisible(false);
+                showDrawSceneToolBars(true);
             });
-
             bar.getItems().addAll(linkButton, drawButton);
         }
-        Scene root = new Scene(new VBox(), 640, 480);
-        ((VBox) root.getRoot()).getChildren().addAll(menuBar, editor);
-        primaryStage.setScene(root);
+        try {
+            drawScene = new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
+
+
+
+
+        VBox editorVbox = new VBox();
+        Scene editorScene = new Scene(editorVbox, 640, 480);
+        ((VBox) editorScene.getRoot()).getChildren().addAll(menuBar, editor);
+        wrapper = new StackPane();
+        wrapper.getChildren().add(editorScene.getRoot());
+        wrapper.getChildren().add(drawScene.getRoot());
+        wrapper.getChildren().get(1).setMouseTransparent(true);
+
+        Scene scene = new Scene(wrapper, 640, 520);
+
+
+        showDrawSceneToolBars(false);
+
+
+        primaryStage.setScene(scene);
         primaryStage.show();
+
+
+    }
+
+    private void showDrawSceneToolBars(Boolean show) {
+        Node myDrawNode = wrapper.getChildren().get(1);
+        System.out.println(wrapper.getChildren());
+        BorderPane mydrawScene = (BorderPane) myDrawNode;
+        VBox myVbox = (VBox)mydrawScene.getChildren().get(0);
+        Node menu =  myVbox.getChildren().get(0);
+        Node topToolBar = myVbox.getChildren().get(1);
+        Node bottomToolBar = myVbox.getChildren().get(2);
+        menu.setVisible(show);
+        topToolBar.setVisible(show);
+        bottomToolBar.setVisible(show);
     }
 
     private String getInsertHtmlAtCursorJS(String html) {
@@ -264,4 +280,6 @@ public class AmITea extends Application {
                 + " }\n"
                 + "}";
     }
+
+
 }
