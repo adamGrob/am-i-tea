@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 
-<BorderPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.codecool.paintFx.controller.PaintController">
+<BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.codecool.paintFx.controller.PaintController">
     <top>
         <VBox>
             <ToolBar fx:id="topToolbar" visible="false">
@@ -55,7 +55,7 @@
     </top>
 
     <center>
-        <Canvas fx:id="canvas" height="420" width="640" />
+        <Canvas fx:id="canvas" />
     </center>
 
 </BorderPane>
