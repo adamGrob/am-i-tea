@@ -59,12 +59,9 @@ public class AmITea extends Application {
         JavaApplication javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
 
         webView.getEngine().setJavaScriptEnabled(true);
-        webView.getEngine().getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
-            @Override
-            public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
-                final JSObject window = (JSObject) webView.getEngine().executeScript("window");
-                window.setMember("app", javaApp);
-            }
+        webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            final JSObject window = (JSObject) webView.getEngine().executeScript("window");
+            window.setMember("app", javaApp);
         });
 
         final JSObject window = (JSObject) webView.getEngine().executeScript("window");
