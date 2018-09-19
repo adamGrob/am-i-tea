@@ -1,13 +1,17 @@
 package com.codecool.paintFx.service;
 
+import com.codecool.am_i_tea.AmITea;
 import com.codecool.am_i_tea.ProjectDAO;
 import com.codecool.am_i_tea.TextFileDAO;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
+import com.codecool.paintFx.model.ShapeList;
 
-import javax.imageio.ImageIO;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.google.gson.Gson;
 
 public class PaintService {
 
@@ -22,36 +26,45 @@ public class PaintService {
         fileDAO = fileDAOStuff;
     }
 
-    public static boolean createNewImageFile(){
+    public static boolean createNewImageFile() {
         File file = new File(projectDAO.getCurrentProject().getPath() +
                 File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
         try {
-            if (file.createNewFile()){
+            if (file.createNewFile()) {
                 System.out.println("Image file created successfully!");
                 return true;
             } else {
                 System.out.println("Image file already exists. Choose a unique name!");
                 return false;
             }
-        } catch (IOException ex){
+        } catch (IOException ex) {
             System.out.println(ex.getMessage());
             return false;
         }
     }
 
-    public static void saveImage(Image snapshot){
+    public static void saveImage() {
 
         String path = projectDAO.getCurrentProject().getPath() + File.separator +
-                fileDAO.getCurrentFile().getName() + "_img" +
-                fileDAO.getCurrentFile().nextPicture() + ".png";
+                fileDAO.getCurrentFile().getName() + "_image.txt";
         File file = new File(path);
 
-        try {
-            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
-            System.out.println("Image saved successfully!");
+        String jsonImage = new Gson().toJson(ShapeList.getInstance().getShapeList());
+
+        if (file.exists()) {
+            saveImageFile(jsonImage, file);
+            System.out.println("Image file saved successfully!");
+        } else {
+            System.out.println("The image file doesn't exist!");
+        }
+    }
+
+    private static void saveImageFile(String content, File file) {
+        try (FileWriter fileWriter = new FileWriter(file)) {
+
+            fileWriter.write(content);
         } catch (IOException ex) {
-            fileDAO.getCurrentFile().nextPictureRollback();
-            System.out.println(ex.getMessage());
+            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
