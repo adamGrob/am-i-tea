@@ -58,6 +58,7 @@ public class TextFileService {
 
         if (file.exists()) {
             saveFile(textToSave, file);
+            PaintService.saveImage();
             System.out.println("File saved successfully!");
         } else {
             System.out.println("The file doesn't exist!");
