@@ -1,32 +1,17 @@
 package com.codecool.paintFx.controller;
 
-import com.codecool.am_i_tea.ProjectDAO;
-import com.codecool.am_i_tea.TextFileDAO;
 import com.codecool.paintFx.model.*;
-import com.codecool.paintFx.service.PaintService;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
-
-import javax.imageio.ImageIO;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -44,9 +29,6 @@ public class PaintController {
     private List<StraightLine> straightLineList;
 
     private Stack<MyShape> redoStack = new Stack<>();
-
-    private TextFileDAO fileDAO;
-    private ProjectDAO projectDAO;
 
     @FXML
     private Canvas canvas;
@@ -97,30 +79,33 @@ public class PaintController {
         handleRedo(graphicsContext);
         handleMouseRelease(graphicsContext);
         handleSnapCheckBoxDisable();
+        handleWindowResize();
+        handleTextEditorButton();
 
+    }
+
+    private void handleWindowResize() {
         borderPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             canvas.setWidth(borderPane.getWidth() - 30);
         });
         borderPane.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             canvas.setHeight(borderPane.getHeight()-90);
         });
+    }
 
-
+    private void handleTextEditorButton() {
         textEditorButton.setOnAction(actionEvent -> {
             StackPane myStackPane = (StackPane)canvas.getParent().getParent();
             Node drawNode = myStackPane.getChildren().get(1);
             topToolbar.setVisible(false);
             bottomToolbar.setVisible(false);
             drawNode.setMouseTransparent(true);
-
-
             VBox editorVbox = (VBox) myStackPane.getChildren().get(0);
             Node node = editorVbox.lookup(".top-toolbar");
             Node node2 = editorVbox.lookup(".bottom-toolbar");
             node.setVisible(true);
             node2.setVisible(true);
             });
-
     }
 
     private void handleMousePressed() {
@@ -215,15 +200,6 @@ public class PaintController {
             CustomLine customLine = new CustomLine(straightLineList);
             drawnShapeList.add(customLine);
         }
-    }
-
-    public void onSave() {
-        Image snapshot = canvas.snapshot(null, null);
-        PaintService.saveImage(snapshot);
-    }
-
-    public void onExit() {
-        Platform.exit();
     }
 
     private void drawShape(GraphicsContext graphicsContext, MouseEvent mouseEvent, ShapeEnum shapeEnum) {
