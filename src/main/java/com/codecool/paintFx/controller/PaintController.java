@@ -7,17 +7,25 @@ import com.codecool.paintFx.service.PaintService;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
 
 import javax.imageio.ImageIO;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -66,6 +74,17 @@ public class PaintController {
     @FXML
     ToggleButton circle;
 
+    @FXML
+    Button textEditorButton;
+
+    @FXML ToggleGroup toggleGroup1;
+
+    @FXML
+    ToolBar topToolbar;
+
+    @FXML
+    ToolBar bottomToolbar;
+
     public void initialize() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         handleMouseDrag(graphicsContext);
@@ -74,6 +93,21 @@ public class PaintController {
         handleRedo(graphicsContext);
         handleMouseRelease(graphicsContext);
         handleSnapCheckBoxDisable();
+        textEditorButton.setOnAction(actionEvent -> {
+            StackPane myStackPane = (StackPane)canvas.getParent().getParent();
+            Node drawNode = myStackPane.getChildren().get(1);
+            topToolbar.setVisible(false);
+            bottomToolbar.setVisible(false);
+            drawNode.setMouseTransparent(true);
+
+
+            VBox editorVbox = (VBox) myStackPane.getChildren().get(0);
+            Node node = editorVbox.lookup(".top-toolbar");
+            Node node2 = editorVbox.lookup(".bottom-toolbar");
+            node.setVisible(true);
+            node2.setVisible(true);
+            });
+
     }
 
     private void handleMousePressed() {
