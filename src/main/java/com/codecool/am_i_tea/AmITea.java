@@ -191,6 +191,7 @@ public class AmITea extends Application {
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(projectMenu, fileMenu);
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+
         Node node = editor.lookup(".top-toolbar");
         if (node instanceof ToolBar) {
             ToolBar bar = (ToolBar) node;
@@ -244,23 +245,22 @@ public class AmITea extends Application {
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
 
 
-
-
         VBox editorVbox = new VBox();
         Scene editorScene = new Scene(editorVbox, 640, 480);
-        ((VBox) editorScene.getRoot()).getChildren().addAll(menuBar, editor);
+        ((VBox) editorScene.getRoot()).getChildren().addAll(editor);
         wrapper = new StackPane();
         wrapper.getChildren().add(editorScene.getRoot());
         wrapper.getChildren().add(drawScene.getRoot());
         wrapper.getChildren().get(1).setMouseTransparent(true);
 
-        Scene scene = new Scene(wrapper, 640, 520);
-
+        VBox wrapperVbox = new VBox();
+        Scene wrapperScene = new Scene(wrapperVbox);
+        ((VBox) wrapperScene.getRoot()).getChildren().addAll(menuBar, wrapper);
 
         showDrawSceneToolBars(false);
 
 
-        primaryStage.setScene(scene);
+        primaryStage.setScene(wrapperScene);
         primaryStage.show();
 
 
@@ -268,14 +268,13 @@ public class AmITea extends Application {
 
     private void showDrawSceneToolBars(Boolean show) {
         Node myDrawNode = wrapper.getChildren().get(1);
-        BorderPane mydrawScene = (BorderPane) myDrawNode;
-        VBox myVbox = (VBox)mydrawScene.getChildren().get(0);
-        Node menu =  myVbox.getChildren().get(0);
-        Node topToolBar = myVbox.getChildren().get(1);
-        Node bottomToolBar = myVbox.getChildren().get(2);
-        menu.setVisible(show);
+        BorderPane myDrawScene = (BorderPane) myDrawNode;
+        VBox myVbox = (VBox)myDrawScene.getChildren().get(0);
+        Node topToolBar = myVbox.getChildren().get(0);
+        Node bottomToolBar = myVbox.getChildren().get(1);
         topToolBar.setVisible(show);
         bottomToolBar.setVisible(show);
+
     }
 
     private String getInsertHtmlAtCursorJS(String html) {
