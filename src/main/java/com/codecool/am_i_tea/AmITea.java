@@ -56,7 +56,7 @@ public class AmITea extends Application {
         primaryStage.setTitle("Am-I-Tea text editor");
 
         HTMLEditor editor = new HTMLEditor();
-        editor.setVisible(true);
+        editor.setVisible(false);
 
         final Menu fileMenu = new Menu("File");
         final Menu projectMenu = new Menu("Project");
@@ -254,7 +254,6 @@ public class AmITea extends Application {
 
     private void showDrawSceneToolBars(Boolean show) {
         Node myDrawNode = wrapper.getChildren().get(1);
-        System.out.println(wrapper.getChildren());
         BorderPane mydrawScene = (BorderPane) myDrawNode;
         VBox myVbox = (VBox)mydrawScene.getChildren().get(0);
         Node menu =  myVbox.getChildren().get(0);
