@@ -39,7 +39,7 @@ public class TextFileService {
         String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
         File file = new File(projectPath);
 
-        String[] files = file.list((current, name) -> new File(current, name).isFile());
+        String[] files = file.list((current, name) -> name.endsWith(".html"));
         if (files != null) {
             System.out.println("Found the list of all files in the project!");
             return new ArrayList<>(Arrays.asList(files));
