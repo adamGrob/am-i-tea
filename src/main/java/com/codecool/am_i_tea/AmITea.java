@@ -5,7 +5,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -19,12 +18,12 @@ import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
+import netscape.javascript.JSObject;
+
 import javax.swing.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 import static javafx.application.Application.launch;
 
@@ -50,10 +49,13 @@ public class AmITea extends Application {
         PaintService.setfileDAO(fileDAO);
         PaintService.setProjectDAO(projectDAO);
 
-        primaryStage.setTitle("Am-I-Tea text editor");
-
         HTMLEditor editor = new HTMLEditor();
         editor.setVisible(false);
+
+        WebView webView = (WebView) editor.lookup("WebView");
+        JavaApplication javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
+
+        primaryStage.setTitle("Am-I-Tea text editor");
 
         final Menu fileMenu = new Menu("File");
         final Menu projectMenu = new Menu("Project");
@@ -210,10 +212,14 @@ public class AmITea extends Application {
             linkButton.setTooltip(new Tooltip("Hypermilnk"));
 
             linkButton.setOnAction(actionEvent -> {
-                String url = JOptionPane.showInputDialog("Enter URL");
-                WebView webView = (WebView) editor.lookup("WebView");
+                String targetFileName = JOptionPane.showInputDialog("Enter file name");
+
+                JSObject window = (JSObject) webView.getEngine().executeScript("window");
+                window.setMember("app", javaApp);
+
                 String selected = (String) webView.getEngine().executeScript("window.getSelection().toString();");
-                String hyperlinkHtml = "<a href=\"" + url.trim() + "\" title=\"" + selected + "\" target=\"_blank\">" + selected + "</a>";
+                String hyperlinkHtml = "<span style=\"color:blue; text-decoration:underline; \" onClick=\"" +
+                        "window.app.openLinkedFile(\\'" + targetFileName + "\\')\"" + ">" + selected + "</span>";
                 webView.getEngine().executeScript(getInsertHtmlAtCursorJS(hyperlinkHtml));
             });
 
