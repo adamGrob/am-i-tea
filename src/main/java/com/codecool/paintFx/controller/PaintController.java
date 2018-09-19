@@ -204,15 +204,6 @@ public class PaintController {
         }
     }
 
-    public void onSave() {
-        Image snapshot = canvas.snapshot(null, null);
-        PaintService.saveImage(snapshot);
-    }
-
-    public void onExit() {
-        Platform.exit();
-    }
-
     private void drawShape(GraphicsContext graphicsContext, MouseEvent mouseEvent, ShapeEnum shapeEnum) {
         double size = Double.parseDouble(brushSize.getText());
         double currX = mouseEvent.getX() - size / 2;
