@@ -22,6 +22,23 @@ public class PaintService {
         fileDAO = fileDAOStuff;
     }
 
+    public static boolean createNewImageFile(){
+        File file = new File(projectDAO.getCurrentProject().getPath() +
+                File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
+        try {
+            if (file.createNewFile()){
+                System.out.println("Image file created successfully!");
+                return true;
+            } else {
+                System.out.println("Image file already exists. Choose a unique name!");
+                return false;
+            }
+        } catch (IOException ex){
+            System.out.println(ex.getMessage());
+            return false;
+        }
+    }
+
     public static void saveImage(Image snapshot){
 
         String path = projectDAO.getCurrentProject().getPath() + File.separator +

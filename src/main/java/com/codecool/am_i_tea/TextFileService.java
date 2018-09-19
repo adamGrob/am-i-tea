@@ -1,5 +1,6 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.paintFx.service.PaintService;
 import javafx.scene.web.HTMLEditor;
 
 import java.io.*;
@@ -23,7 +24,7 @@ public class TextFileService {
             if (file.createNewFile()){
                 System.out.println("File created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
-                return true;
+                return PaintService.createNewImageFile();
             } else {
                 System.out.println("File already exists. Choose a unique name!");
                 return false;
