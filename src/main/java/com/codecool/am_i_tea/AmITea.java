@@ -3,8 +3,11 @@ package com.codecool.am_i_tea;
 import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -54,6 +57,17 @@ public class AmITea extends Application {
 
         WebView webView = (WebView) editor.lookup("WebView");
         JavaApplication javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
+
+        webView.getEngine().setJavaScriptEnabled(true);
+        webView.getEngine().getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
+            @Override
+            public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
+                final JSObject window = (JSObject) webView.getEngine().executeScript("window");
+                window.setMember("app", javaApp);
+            }
+        });
+
+        final JSObject window = (JSObject) webView.getEngine().executeScript("window");
 
         primaryStage.setTitle("Am-I-Tea text editor");
 
@@ -213,9 +227,6 @@ public class AmITea extends Application {
 
             linkButton.setOnAction(actionEvent -> {
                 String targetFileName = JOptionPane.showInputDialog("Enter file name");
-
-                JSObject window = (JSObject) webView.getEngine().executeScript("window");
-                window.setMember("app", javaApp);
 
                 String selected = (String) webView.getEngine().executeScript("window.getSelection().toString();");
                 String hyperlinkHtml = "<span style=\"color:blue; text-decoration:underline; \" onClick=\"" +
