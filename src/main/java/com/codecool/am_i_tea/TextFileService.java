@@ -1,8 +1,6 @@
 package com.codecool.am_i_tea;
 
 import javafx.scene.web.HTMLEditor;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -37,7 +35,6 @@ public class TextFileService {
     }
 
     public List<String> getAllFilesOfProject(String projectName) {
-
         String homeFolder = System.getProperty("user.home");
         String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
         File file = new File(projectPath);

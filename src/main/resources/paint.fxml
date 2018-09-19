@@ -19,14 +19,7 @@
 <BorderPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.codecool.paintFx.controller.PaintController">
     <top>
         <VBox>
-            <MenuBar visible="true">
-                <Menu text="File">
-                    <MenuItem onAction="#onSave" text="Save" />
-                    <MenuItem onAction="#onExit" text="Exit" />
-
-                </Menu>
-            </MenuBar>
-            <ToolBar fx:id="topToolbar">
+            <ToolBar fx:id="topToolbar" visible="false">
                     <HBox alignment="CENTER" spacing="5">
                         <TextField fx:id="brushSize" text="11" />
                         <ColorPicker fx:id="colorPicker">
@@ -44,7 +37,7 @@
             <Button fx:id="redo" mnemonicParsing="false" text="Redo" />
             <Button fx:id="textEditorButton" mnemonicParsing="false" text="Texteditor" />
             </ToolBar>
-            <ToolBar fx:id="bottomToolbar">
+            <ToolBar fx:id="bottomToolbar" visible="false">
                 <HBox alignment="CENTER" spacing="5">
                     <ToggleButton fx:id="straightLineChecked" text="Straight Line">
                   <toggleGroup>

@@ -4,9 +4,11 @@ import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -19,12 +21,12 @@ import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
+import netscape.javascript.JSObject;
+
 import javax.swing.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 import static javafx.application.Application.launch;
 
@@ -53,10 +55,21 @@ public class AmITea extends Application {
         PaintService.setfileDAO(fileDAO);
         PaintService.setProjectDAO(projectDAO);
 
-        primaryStage.setTitle("Am-I-Tea text editor");
-
         HTMLEditor editor = new HTMLEditor();
         editor.setVisible(false);
+
+        WebView webView = (WebView) editor.lookup("WebView");
+        JavaApplication javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
+
+        webView.getEngine().setJavaScriptEnabled(true);
+        webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            final JSObject window = (JSObject) webView.getEngine().executeScript("window");
+            window.setMember("app", javaApp);
+        });
+
+        final JSObject window = (JSObject) webView.getEngine().executeScript("window");
+
+        primaryStage.setTitle("Am-I-Tea text editor");
 
         final Menu fileMenu = new Menu("File");
         final Menu projectMenu = new Menu("Project");
@@ -178,6 +191,7 @@ public class AmITea extends Application {
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(projectMenu, fileMenu);
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+
         Node node = editor.lookup(".top-toolbar");
         if (node instanceof ToolBar) {
             ToolBar bar = (ToolBar) node;
@@ -205,10 +219,11 @@ public class AmITea extends Application {
             linkButton.setTooltip(new Tooltip("Hypermilnk"));
 
             linkButton.setOnAction(actionEvent -> {
-                String url = JOptionPane.showInputDialog("Enter URL");
-                WebView webView = (WebView) editor.lookup("WebView");
+                String targetFileName = JOptionPane.showInputDialog("Enter file name");
+
                 String selected = (String) webView.getEngine().executeScript("window.getSelection().toString();");
-                String hyperlinkHtml = "<a href=\"" + url.trim() + "\" title=\"" + selected + "\" target=\"_blank\">" + selected + "</a>";
+                String hyperlinkHtml = "<span style=\"color:blue; text-decoration:underline; \" onClick=\"" +
+                        "window.app.openLinkedFile(\\'" + targetFileName + "\\')\"" + ">" + selected + "</span>";
                 webView.getEngine().executeScript(getInsertHtmlAtCursorJS(hyperlinkHtml));
             });
 
@@ -230,23 +245,22 @@ public class AmITea extends Application {
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
 
 
-
-
         VBox editorVbox = new VBox();
         Scene editorScene = new Scene(editorVbox, 640, 480);
-        ((VBox) editorScene.getRoot()).getChildren().addAll(menuBar, editor);
+        ((VBox) editorScene.getRoot()).getChildren().addAll(editor);
         wrapper = new StackPane();
         wrapper.getChildren().add(editorScene.getRoot());
         wrapper.getChildren().add(drawScene.getRoot());
         wrapper.getChildren().get(1).setMouseTransparent(true);
 
-        Scene scene = new Scene(wrapper, 640, 520);
-
+        VBox wrapperVbox = new VBox();
+        Scene wrapperScene = new Scene(wrapperVbox);
+        ((VBox) wrapperScene.getRoot()).getChildren().addAll(menuBar, wrapper);
 
         showDrawSceneToolBars(false);
 
 
-        primaryStage.setScene(scene);
+        primaryStage.setScene(wrapperScene);
         primaryStage.show();
 
 
@@ -254,14 +268,13 @@ public class AmITea extends Application {
 
     private void showDrawSceneToolBars(Boolean show) {
         Node myDrawNode = wrapper.getChildren().get(1);
-        BorderPane mydrawScene = (BorderPane) myDrawNode;
-        VBox myVbox = (VBox)mydrawScene.getChildren().get(0);
-        Node menu =  myVbox.getChildren().get(0);
-        Node topToolBar = myVbox.getChildren().get(1);
-        Node bottomToolBar = myVbox.getChildren().get(2);
-        menu.setVisible(show);
+        BorderPane myDrawScene = (BorderPane) myDrawNode;
+        VBox myVbox = (VBox)myDrawScene.getChildren().get(0);
+        Node topToolBar = myVbox.getChildren().get(0);
+        Node bottomToolBar = myVbox.getChildren().get(1);
         topToolBar.setVisible(show);
         bottomToolBar.setVisible(show);
+
     }
 
     private String getInsertHtmlAtCursorJS(String html) {
