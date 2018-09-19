@@ -5,7 +5,8 @@ import com.codecool.am_i_tea.TextFileDAO;
 import com.codecool.paintFx.model.*;
 import com.codecool.paintFx.service.PaintService;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -51,6 +52,9 @@ public class PaintController {
     private Canvas canvas;
 
     @FXML
+    private BorderPane borderPane;
+
+    @FXML
     private ColorPicker colorPicker;
 
     @FXML
@@ -93,6 +97,15 @@ public class PaintController {
         handleRedo(graphicsContext);
         handleMouseRelease(graphicsContext);
         handleSnapCheckBoxDisable();
+
+        borderPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
+            canvas.setWidth(borderPane.getWidth() - 30);
+        });
+        borderPane.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
+            canvas.setHeight(borderPane.getHeight()-90);
+        });
+
+
         textEditorButton.setOnAction(actionEvent -> {
             StackPane myStackPane = (StackPane)canvas.getParent().getParent();
             Node drawNode = myStackPane.getChildren().get(1);
