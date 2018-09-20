@@ -1,6 +1,11 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.paintFx.model.MyShape;
+import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.web.HTMLEditor;
 
 import java.io.*;
@@ -13,9 +18,14 @@ import java.util.logging.Logger;
 public class TextFileService {
 
     private TextFileDAO fileDAO;
+    private GraphicsContext graphicsContext;
 
     public TextFileService(TextFileDAO fileDAO) {
         this.fileDAO = fileDAO;
+    }
+
+    public void setGraphicsContext(GraphicsContext graphicsContext) {
+        this.graphicsContext = graphicsContext;
     }
 
     public boolean createNewTextFile(String projectPath, String fileName){
@@ -77,6 +87,7 @@ public class TextFileService {
             System.out.println("File opened successfully!");
         }
         editor.setHtmlText(content);
+        redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
     }
 
     private void saveFile(String content, File file) {
@@ -109,5 +120,19 @@ public class TextFileService {
         }
 
         return content;
+    }
+
+    private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext, HTMLEditor editor) {
+        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+        for (MyShape myShape : drawnShapeList) {
+            setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
+            myShape.display(graphicsContext);
+        }
+    }
+
+    private void setupBrush(GraphicsContext graphicsContext, double size, Paint value) {
+        graphicsContext.setStroke(value);
+        graphicsContext.setLineWidth(size);
+        graphicsContext.setLineCap(StrokeLineCap.ROUND);
     }
 }
