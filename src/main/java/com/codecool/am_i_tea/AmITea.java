@@ -12,6 +12,8 @@ import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,6 +40,7 @@ public class AmITea extends Application {
     private ProjectService projectService;
     private ProjectDAO projectDAO;
     private TextFileDAO fileDAO;
+    private GraphicsContext graphicsContext;
 
 
     public static void main(String[] args) {
@@ -259,6 +262,9 @@ public class AmITea extends Application {
 
         showDrawSceneToolBars(false);
 
+        System.out.println(drawScene.getRoot().getChildrenUnmodifiable());
+        graphicsContext = ((Canvas) drawScene.getRoot().getChildrenUnmodifiable().get(1)).getGraphicsContext2D();
+        textFileService.setGraphicsContext(graphicsContext);
 
         primaryStage.setScene(wrapperScene);
         primaryStage.show();
