@@ -57,6 +57,7 @@ public class PaintService {
 
         List<StoredLine> storedLineList = new ArrayList<>();
         List<StoredCustomLine> storedCustomLineList = new ArrayList<>();
+        List<StoredRectangle> storedRectangleList = new ArrayList<>();
 
         for (MyShape myShape: ShapeList.getInstance().getShapeList()) {
             if (myShape instanceof StraightLine) {
@@ -67,6 +68,7 @@ public class PaintService {
                         myShape.getBrushSize(),
                         myShape.getColor()));
             }
+
             if (myShape instanceof CustomLine) {
                 StoredCustomLine storedCustomLine = new StoredCustomLine();
                 List<StoredLine> placeholder = new ArrayList<>();
@@ -83,12 +85,21 @@ public class PaintService {
                 }
                 storedCustomLineList.add(storedCustomLine);
             }
+
+            if (myShape instanceof MyRectangle) {
+                storedRectangleList.add(new StoredRectangle(myShape.getStartX(),
+                        myShape.getStartY(), ((MyRectangle) myShape).getWidth(),
+                        ((MyRectangle) myShape).getHeight(), myShape.getBrushSize(),
+                        myShape.getColor()));
+            }
         }
 
         String jsonStoredLineList = new Gson().toJson(storedLineList);
         String jsonStoredCustomLineList = new Gson().toJson(storedCustomLineList);
+        String jsonStoredRectangleList = new Gson().toJson(storedRectangleList);
 
-        String fullJson = "[" + jsonStoredLineList + "," + jsonStoredCustomLineList + "]";
+        String fullJson = "[" + jsonStoredLineList + "," + jsonStoredCustomLineList + "," +
+                jsonStoredRectangleList + "]";
 
         if (file.exists()) {
             saveImageFile(fullJson, file);
@@ -107,6 +118,7 @@ public class PaintService {
             String jsonImage = openImageFile(file);
             List<StoredLine> storedLineList = new ArrayList<>();
             List<StoredCustomLine> storedCustomLineList = new ArrayList<>();
+            List<StoredRectangle> storedRectangleList = new ArrayList<>();
 
             JsonArray listOfShapeTypes = new Gson().fromJson(jsonImage, JsonArray.class);
             JsonArray straightLineList = new Gson().fromJson(listOfShapeTypes.get(0).toString(), JsonArray.class);
@@ -137,6 +149,14 @@ public class PaintService {
                 storedCustomLineList.add(currentStoredCustomLine);
             }
 
+            JsonArray rectangleList = new Gson().fromJson(listOfShapeTypes.get(2), JsonArray.class);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                storedRectangleList = mapper.readValue(rectangleList.toString(), new TypeReference<List<StoredRectangle>>() {
+                });
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
 
             List<MyShape> storedShapeList = ShapeList.getInstance().getShapeList();
             for (StoredLine line: storedLineList) {
@@ -153,6 +173,11 @@ public class PaintService {
                             color, linePart.getBrushSize()));
                 }
                 storedShapeList.add(new CustomLine(storedCustomLinePartList));
+            }
+            for (StoredRectangle rekt: storedRectangleList) {
+                Color color = new Color(rekt.getRed(), rekt.getGreen(), rekt.getBlue(), 1.0);
+                storedShapeList.add(new MyRectangle(rekt.getStartX(), rekt.getStartY(),
+                        rekt.getWidth(), rekt.getHeight(), color, rekt.getBrushSize()));
             }
 
 
