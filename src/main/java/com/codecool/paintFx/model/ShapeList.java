@@ -22,4 +22,8 @@ public class ShapeList {
     public void setShapeList(List<MyShape> shapeList) {
         this.shapeList = shapeList;
     }
+
+    public void emptyShapeList() {
+        this.shapeList.clear();
+    }
 }
