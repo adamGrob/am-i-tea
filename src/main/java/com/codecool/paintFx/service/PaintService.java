@@ -106,7 +106,7 @@ public class PaintService {
             List<MyShape> storedShapeList = ShapeList.getInstance().getShapeList();
             for (StoredLine line: storedLineList) {
                 Color color = new Color(line.getRed(), line.getGreen(), line.getBlue(), 1.0);
-                storedShapeList.add(new StraightLine(line.getStartX(), line.getStartX(),
+                storedShapeList.add(new StraightLine(line.getStartX(), line.getStartY(),
                         line.getEndX(), line.getEndY(), color, line.getBrushSize()));
             }
             System.out.println("Image file opened successfully!");
