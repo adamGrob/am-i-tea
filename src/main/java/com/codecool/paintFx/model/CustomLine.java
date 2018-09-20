@@ -12,7 +12,7 @@ public class CustomLine extends MyShape {
         this.straightLineList = straightLineList;
     }
 
-    private List<StraightLine> getStraightLineList() {
+    public List<StraightLine> getStraightLineList() {
         return straightLineList;
     }
 

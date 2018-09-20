@@ -73,6 +73,8 @@ public class PaintController {
 
     public void initialize() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        ShapeList.getInstance().setShapeList(drawnShapeList);
+
         handleMouseDrag(graphicsContext);
         handleMousePressed();
         handleUndo(graphicsContext);

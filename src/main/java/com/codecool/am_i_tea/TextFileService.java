@@ -1,5 +1,11 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.paintFx.model.MyShape;
+import com.codecool.paintFx.model.ShapeList;
+import com.codecool.paintFx.service.PaintService;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.web.HTMLEditor;
 
 import java.io.*;
@@ -12,18 +18,25 @@ import java.util.logging.Logger;
 public class TextFileService {
 
     private TextFileDAO fileDAO;
+    private GraphicsContext graphicsContext;
 
     public TextFileService(TextFileDAO fileDAO) {
         this.fileDAO = fileDAO;
     }
 
-    public boolean createNewTextFile(String projectPath, String fileName){
+    public void setGraphicsContext(GraphicsContext graphicsContext) {
+        this.graphicsContext = graphicsContext;
+    }
+
+    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor){
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
             if (file.createNewFile()){
                 System.out.println("File created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
-                return true;
+                ShapeList.getInstance().emptyShapeList();
+                graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
+                return PaintService.createNewImageFile();
             } else {
                 System.out.println("File already exists. Choose a unique name!");
                 return false;
@@ -39,7 +52,7 @@ public class TextFileService {
         String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
         File file = new File(projectPath);
 
-        String[] files = file.list((current, name) -> new File(current, name).isFile());
+        String[] files = file.list((current, name) -> name.endsWith(".html"));
         if (files != null) {
             System.out.println("Found the list of all files in the project!");
             return new ArrayList<>(Arrays.asList(files));
@@ -57,6 +70,7 @@ public class TextFileService {
 
         if (file.exists()) {
             saveFile(textToSave, file);
+            PaintService.saveImage();
             System.out.println("File saved successfully!");
         } else {
             System.out.println("The file doesn't exist!");
@@ -67,13 +81,18 @@ public class TextFileService {
 
         File file = new File(projectPath + File.separator + fileName + ".html");
 
+        ShapeList.getInstance().emptyShapeList();
+        graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
+
         String content = "";
         if (file.exists()) {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
+            PaintService.loadImage();
             System.out.println("File opened successfully!");
         }
         editor.setHtmlText(content);
+        redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
     }
 
     private void saveFile(String content, File file) {
@@ -106,5 +125,19 @@ public class TextFileService {
         }
 
         return content;
+    }
+
+    private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext, HTMLEditor editor) {
+        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+        for (MyShape myShape : drawnShapeList) {
+            setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
+            myShape.display(graphicsContext);
+        }
+    }
+
+    private void setupBrush(GraphicsContext graphicsContext, double size, Paint value) {
+        graphicsContext.setStroke(value);
+        graphicsContext.setLineWidth(size);
+        graphicsContext.setLineCap(StrokeLineCap.ROUND);
     }
 }
