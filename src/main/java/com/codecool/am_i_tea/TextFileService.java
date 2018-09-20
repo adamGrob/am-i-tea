@@ -73,6 +73,7 @@ public class TextFileService {
         if (file.exists()) {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
+            PaintService.loadImage();
             System.out.println("File opened successfully!");
         }
         editor.setHtmlText(content);
