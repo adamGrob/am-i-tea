@@ -3,8 +3,7 @@ package com.codecool.paintFx.service;
 import com.codecool.am_i_tea.AmITea;
 import com.codecool.am_i_tea.ProjectDAO;
 import com.codecool.am_i_tea.TextFileDAO;
-import com.codecool.paintFx.model.MyShape;
-import com.codecool.paintFx.model.ShapeList;
+import com.codecool.paintFx.model.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,10 +11,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.codecool.paintFx.model.StoredLine;
-import com.codecool.paintFx.model.StraightLine;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import javafx.scene.paint.Color;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -58,6 +56,7 @@ public class PaintService {
         File file = new File(path);
 
         List<StoredLine> storedLineList = new ArrayList<>();
+        List<StoredCustomLine> storedCustomLineList = new ArrayList<>();
 
         for (MyShape myShape: ShapeList.getInstance().getShapeList()) {
             if (myShape instanceof StraightLine) {
@@ -68,12 +67,31 @@ public class PaintService {
                         myShape.getBrushSize(),
                         myShape.getColor()));
             }
+            if (myShape instanceof CustomLine) {
+                StoredCustomLine storedCustomLine = new StoredCustomLine();
+                List<StoredLine> placeholder = new ArrayList<>();
+                storedCustomLine.setStoredLineList(placeholder);
+                for (StraightLine linePart: ((CustomLine)myShape).getStraightLineList()) {
+                    storedCustomLine.getStoredLineList().add(
+                            new StoredLine(linePart.getStartX(),
+                                    linePart.getStartY(),
+                                    linePart.getEndX(),
+                                    linePart.getEndY(),
+                                    linePart.getBrushSize(),
+                                    linePart.getColor())
+                    );
+                }
+                storedCustomLineList.add(storedCustomLine);
+            }
         }
 
-        String jsonImage = new Gson().toJson(storedLineList);
+        String jsonStoredLineList = new Gson().toJson(storedLineList);
+        String jsonStoredCustomLineList = new Gson().toJson(storedCustomLineList);
+
+        String fullJson = "[" + jsonStoredLineList + "," + jsonStoredCustomLineList + "]";
 
         if (file.exists()) {
-            saveImageFile(jsonImage, file);
+            saveImageFile(fullJson, file);
             System.out.println("Image file saved successfully!");
         } else {
             System.out.println("The image file doesn't exist!");
@@ -88,20 +106,37 @@ public class PaintService {
         if (file.exists()) {
             String jsonImage = openImageFile(file);
             List<StoredLine> storedLineList = new ArrayList<>();
+            List<StoredCustomLine> storedCustomLineList = new ArrayList<>();
 
-            JsonArray jsonArray = new Gson().fromJson(jsonImage, JsonArray.class);
-//            JsonObject straightLineList = new Gson().fromJson(jsonArray.get(0).toString(), JsonObject.class);
-//            JsonArray lineList = new Gson().fromJson(straightLineList.get("straightLineList"), JsonArray.class);
-//
-//            System.out.println(lineList);
+            JsonArray listOfShapeTypes = new Gson().fromJson(jsonImage, JsonArray.class);
+            JsonArray straightLineList = new Gson().fromJson(listOfShapeTypes.get(0).toString(), JsonArray.class);
 
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                storedLineList = mapper.readValue(jsonArray.toString(), new TypeReference<List<StoredLine>>() {
+                storedLineList = mapper.readValue(straightLineList.toString(), new TypeReference<List<StoredLine>>() {
                 });
             } catch (IOException ex) {
                 System.out.println(ex.getMessage());
             }
+
+            JsonArray customLineList = new Gson().fromJson(listOfShapeTypes.get(1).toString(), JsonArray.class);
+            for (JsonElement customLineElement: customLineList) {
+                StoredCustomLine currentStoredCustomLine = new StoredCustomLine();
+                List<StoredLine> storedCustomLinePartList = new ArrayList<>();
+
+                JsonObject customLine = new Gson().fromJson(customLineElement.toString(), JsonObject.class);
+                JsonArray customLinePartList = new Gson().fromJson(customLine.get("storedLineList"), JsonArray.class);
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    storedCustomLinePartList = mapper.readValue(customLinePartList.toString(), new TypeReference<List<StoredLine>>() {});
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                }
+
+                currentStoredCustomLine.setStoredLineList(storedCustomLinePartList);
+                storedCustomLineList.add(currentStoredCustomLine);
+            }
+
 
             List<MyShape> storedShapeList = ShapeList.getInstance().getShapeList();
             for (StoredLine line: storedLineList) {
@@ -109,6 +144,19 @@ public class PaintService {
                 storedShapeList.add(new StraightLine(line.getStartX(), line.getStartY(),
                         line.getEndX(), line.getEndY(), color, line.getBrushSize()));
             }
+            for (StoredCustomLine line: storedCustomLineList) {
+                List<StraightLine> storedCustomLinePartList = new ArrayList<>();
+                for (StoredLine linePart: line.getStoredLineList()) {
+                    Color color = new Color(linePart.getRed(), linePart.getGreen(), linePart.getBlue(), 1.0);
+                    storedCustomLinePartList.add(new StraightLine(linePart.getStartX(),
+                            linePart.getStartY(), linePart.getEndX(), linePart.getEndY(),
+                            color, linePart.getBrushSize()));
+                }
+                storedShapeList.add(new CustomLine(storedCustomLinePartList));
+            }
+
+
+
             System.out.println("Image file opened successfully!");
         } else {
             System.out.println("Could not open imafe file!");
