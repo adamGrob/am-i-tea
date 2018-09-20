@@ -1,14 +1,11 @@
 package com.codecool.am_i_tea;
 
-import com.codecool.paintFx.controller.PaintController;
+import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -133,6 +130,9 @@ public class AmITea extends Application {
             // todo save current file (files?) before closing them
             System.out.println("Project closed!");
 
+            ShapeList.getInstance().emptyShapeList();
+            graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+
             fileDAO.setCurrentFile(null);
             projectDAO.setCurrentProject(null);
             fileMenu.setDisable(true);
@@ -150,7 +150,7 @@ public class AmITea extends Application {
 
         newFileMenuItem.setOnAction(actionEvent -> {
             String fileName = JOptionPane.showInputDialog("File Name");
-            if (textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName)) {
+            if (textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName, editor)) {
                 saveFileMenuItem.setDisable(false);
                 editor.setVisible(true);
                 editor.setHtmlText("");
