@@ -28,12 +28,14 @@ public class TextFileService {
         this.graphicsContext = graphicsContext;
     }
 
-    public boolean createNewTextFile(String projectPath, String fileName){
+    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor){
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
             if (file.createNewFile()){
                 System.out.println("File created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
+                ShapeList.getInstance().emptyShapeList();
+                graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
                 return PaintService.createNewImageFile();
             } else {
                 System.out.println("File already exists. Choose a unique name!");
@@ -78,6 +80,9 @@ public class TextFileService {
     public void openTextFile(String fileName, String projectPath, HTMLEditor editor) {
 
         File file = new File(projectPath + File.separator + fileName + ".html");
+
+        ShapeList.getInstance().emptyShapeList();
+        graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
 
         String content = "";
         if (file.exists()) {
