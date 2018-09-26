@@ -210,7 +210,7 @@ public class AmITea extends Application {
             linkImageView.setFitWidth(16);
             linkButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             linkButton.setGraphic(linkImageView);
-            linkButton.setTooltip(new Tooltip("Hypermilnk"));
+            linkButton.setTooltip(new Tooltip("Link another file"));
 
             linkButton.setOnAction(actionEvent -> {
                 String targetFileName = JOptionPane.showInputDialog("Enter file name");
