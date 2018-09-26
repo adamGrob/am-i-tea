@@ -79,7 +79,7 @@ public class AmITea extends Application {
         final MenuItem openFileMenuItem = new MenuItem("Open");
 
         final MenuItem newProjectMenuItem = new MenuItem("New");
-        final MenuItem loadProjectMenuItem = new MenuItem("Load");
+        final MenuItem loadProjectMenuItem = new MenuItem("Open");
         final MenuItem closeProjectMenuItem = new MenuItem("Close");
         final MenuItem exitMenuItem = new MenuItem("Exit");
 
