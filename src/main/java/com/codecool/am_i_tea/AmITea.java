@@ -199,16 +199,7 @@ public class AmITea extends Application {
         if (node instanceof ToolBar) {
             ToolBar bar = (ToolBar) node;
 
-            Button drawButton = new Button("Draw");
-            ImageView drawImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/draw.png")));
-            drawButton.setMinSize(26.0, 22.0);
-            drawButton.setMaxSize(26.0, 22.0);
-            drawImageView.setFitHeight(16);
-            drawImageView.setFitWidth(16);
-            drawButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            drawButton.setGraphic(drawImageView);
-            drawButton.setMinSize(26.0, 22.0);
-            drawButton.setMaxSize(26.0, 22.0);
+            Button drawButton = new Button("Drawing mode");
             drawButton.setTooltip(new Tooltip("Draw"));
 
             Button linkButton = new Button("Hyperlink");
@@ -238,7 +229,13 @@ public class AmITea extends Application {
                 bottomToolBar.setVisible(false);
                 showDrawSceneToolBars(true);
             });
-            bar.getItems().addAll(linkButton, drawButton);
+
+            Separator separator = new Separator();
+
+            bar.getItems().add(drawButton);
+            bar.getItems().add(separator);
+            bar.getItems().add(linkButton);
+
         }
         try {
             drawScene = new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml")));
