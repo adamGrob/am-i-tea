@@ -112,8 +112,7 @@ public class AmITea extends Application {
                 String location = fileChooser.getSelectedFile().getPath();
                 propertyUtil.setLocationProperty(location);
                 logger.getLogger().info("New projects folder selected successfully!");
-            }
-            else {
+            } else {
                 logger.getLogger().info("No project folder was selected!");
             }
         });
@@ -312,7 +311,7 @@ public class AmITea extends Application {
     private void showDrawSceneToolBars(Boolean show) {
         Node myDrawNode = wrapper.getChildren().get(1);
         BorderPane myDrawScene = (BorderPane) myDrawNode;
-        VBox myVbox = (VBox)myDrawScene.getChildren().get(0);
+        VBox myVbox = (VBox) myDrawScene.getChildren().get(0);
         Node topToolBar = myVbox.getChildren().get(0);
         Node bottomToolBar = myVbox.getChildren().get(1);
         topToolBar.setVisible(show);

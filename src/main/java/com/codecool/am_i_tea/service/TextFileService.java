@@ -1,6 +1,5 @@
 package com.codecool.am_i_tea.service;
 
-import com.codecool.am_i_tea.AmITea;
 import com.codecool.am_i_tea.model.TextFile;
 import com.codecool.am_i_tea.dao.TextFileDAO;
 import com.codecool.paintFx.model.MyShape;
@@ -15,8 +14,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TextFileService {
 
@@ -35,20 +32,20 @@ public class TextFileService {
         this.graphicsContext = graphicsContext;
     }
 
-    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor){
+    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor) {
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
-            if (file.createNewFile()){
-                logger.getLogger().info(file.getName() +" created successfully!");
+            if (file.createNewFile()) {
+                logger.getLogger().info(file.getName() + " created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
                 ShapeList.getInstance().emptyShapeList();
-                graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
+                graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
                 return PaintService.createNewImageFile();
             } else {
                 logger.getLogger().warning(file.getName() + " already exists. Choose a unique name!");
                 return false;
             }
-        } catch (IOException ex){
+        } catch (IOException ex) {
             logger.getLogger().warning(ex.getMessage());
             return false;
         }
@@ -78,7 +75,7 @@ public class TextFileService {
         if (file.exists()) {
             saveFile(textToSave, file);
             PaintService.saveImage();
-            logger.getLogger().info(file.getName() +" saved successfully!");
+            logger.getLogger().info(file.getName() + " saved successfully!");
         } else {
             logger.getLogger().warning("The " + file.getName() + " file doesn't exist!");
         }
@@ -89,7 +86,7 @@ public class TextFileService {
         File file = new File(projectPath + File.separator + fileName + ".html");
 
         ShapeList.getInstance().emptyShapeList();
-        graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
+        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
 
         String content = "";
         if (file.exists()) {

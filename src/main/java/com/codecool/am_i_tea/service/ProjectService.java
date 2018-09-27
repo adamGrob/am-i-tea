@@ -45,7 +45,7 @@ public class ProjectService {
         String homeFolder = propertyUtil.getLocationProperty();
         String projectPath = homeFolder + File.separator + projectName;
         File project = new File(projectPath);
-        if (project.exists()){
+        if (project.exists()) {
             projectDAO.setCurrentProject(new Project(projectName, projectPath));
             logger.getLogger().info("Successfully opened " + project.getName() + " project!");
         } else {

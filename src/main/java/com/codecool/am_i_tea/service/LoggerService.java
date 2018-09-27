@@ -38,7 +38,7 @@ public class LoggerService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH-mm-ss");
         String logFileName = "log_" + temp.toLocalDate().toString() + "T" + temp.toLocalTime().format(formatter) + ".txt";
         createLogFile(logFileName);
-        
+
         try {
             FileHandler logFileHandler = new FileHandler(logFilePath + File.separator + logFileName);
             SimpleFormatter simpleFormatter = new SimpleFormatter();

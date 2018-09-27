@@ -63,9 +63,9 @@ public class PaintService {
         List<StoredRectangle> storedRectangleList = new ArrayList<>();
         List<StoredCircle> storedCircleList = new ArrayList<>();
 
-        for (MyShape myShape: ShapeList.getInstance().getShapeList()) {
+        for (MyShape myShape : ShapeList.getInstance().getShapeList()) {
             if (myShape instanceof StraightLine) {
-                storedLineList.add(new StoredLine( myShape.getStartX(),
+                storedLineList.add(new StoredLine(myShape.getStartX(),
                         myShape.getStartY(),
                         ((StraightLine) myShape).getEndX(),
                         ((StraightLine) myShape).getEndY(),
@@ -77,7 +77,7 @@ public class PaintService {
                 StoredCustomLine storedCustomLine = new StoredCustomLine();
                 List<StoredLine> placeholder = new ArrayList<>();
                 storedCustomLine.setStoredLineList(placeholder);
-                for (StraightLine linePart: ((CustomLine)myShape).getStraightLineList()) {
+                for (StraightLine linePart : ((CustomLine) myShape).getStraightLineList()) {
                     storedCustomLine.getStoredLineList().add(
                             new StoredLine(linePart.getStartX(),
                                     linePart.getStartY(),
@@ -115,13 +115,13 @@ public class PaintService {
 
         if (file.exists()) {
             saveImageFile(fullJson, file);
-            logger.getLogger().info(file.getName() +" image file saved successfully!");
+            logger.getLogger().info(file.getName() + " image file saved successfully!");
         } else {
             logger.getLogger().warning("The " + file.getName() + " image file doesn't exist!");
         }
     }
 
-    public static void loadImage(){
+    public static void loadImage() {
 
         File file = new File(projectDAO.getCurrentProject().getPath() +
                 File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
@@ -145,7 +145,7 @@ public class PaintService {
             }
 
             JsonArray customLineList = new Gson().fromJson(listOfShapeTypes.get(1).toString(), JsonArray.class);
-            for (JsonElement customLineElement: customLineList) {
+            for (JsonElement customLineElement : customLineList) {
                 StoredCustomLine currentStoredCustomLine = new StoredCustomLine();
                 List<StoredLine> storedCustomLinePartList = new ArrayList<>();
 
@@ -153,7 +153,8 @@ public class PaintService {
                 JsonArray customLinePartList = new Gson().fromJson(customLine.get("storedLineList"), JsonArray.class);
                 try {
                     ObjectMapper mapper = new ObjectMapper();
-                    storedCustomLinePartList = mapper.readValue(customLinePartList.toString(), new TypeReference<List<StoredLine>>() {});
+                    storedCustomLinePartList = mapper.readValue(customLinePartList.toString(), new TypeReference<List<StoredLine>>() {
+                    });
                 } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
@@ -174,21 +175,21 @@ public class PaintService {
             JsonArray circleList = new Gson().fromJson(listOfShapeTypes.get(3), JsonArray.class);
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                 storedCircleList = mapper.readValue(circleList.toString(), new TypeReference<List<StoredCircle>>() {
+                storedCircleList = mapper.readValue(circleList.toString(), new TypeReference<List<StoredCircle>>() {
                 });
             } catch (IOException ex) {
                 System.out.println(ex.getMessage());
             }
 
             List<MyShape> storedShapeList = ShapeList.getInstance().getShapeList();
-            for (StoredLine line: storedLineList) {
+            for (StoredLine line : storedLineList) {
                 Color color = new Color(line.getRed(), line.getGreen(), line.getBlue(), 1.0);
                 storedShapeList.add(new StraightLine(line.getStartX(), line.getStartY(),
                         line.getEndX(), line.getEndY(), color, line.getBrushSize()));
             }
-            for (StoredCustomLine line: storedCustomLineList) {
+            for (StoredCustomLine line : storedCustomLineList) {
                 List<StraightLine> storedCustomLinePartList = new ArrayList<>();
-                for (StoredLine linePart: line.getStoredLineList()) {
+                for (StoredLine linePart : line.getStoredLineList()) {
                     Color color = new Color(linePart.getRed(), linePart.getGreen(), linePart.getBlue(), 1.0);
                     storedCustomLinePartList.add(new StraightLine(linePart.getStartX(),
                             linePart.getStartY(), linePart.getEndX(), linePart.getEndY(),
@@ -196,17 +197,16 @@ public class PaintService {
                 }
                 storedShapeList.add(new CustomLine(storedCustomLinePartList));
             }
-            for (StoredRectangle rekt: storedRectangleList) {
+            for (StoredRectangle rekt : storedRectangleList) {
                 Color color = new Color(rekt.getRed(), rekt.getGreen(), rekt.getBlue(), 1.0);
                 storedShapeList.add(new MyRectangle(rekt.getStartX(), rekt.getStartY(),
                         rekt.getWidth(), rekt.getHeight(), color, rekt.getBrushSize()));
             }
-            for (StoredCircle circle: storedCircleList) {
+            for (StoredCircle circle : storedCircleList) {
                 Color color = new Color(circle.getRed(), circle.getGreen(), circle.getBlue(), 1.0);
                 storedShapeList.add(new MyOval(circle.getStartX(), circle.getStartY(),
                         circle.getWidth(), circle.getHeight(), color, circle.getBrushSize()));
             }
-
 
 
             logger.getLogger().info(file.getName() + " image file opened successfully!");
