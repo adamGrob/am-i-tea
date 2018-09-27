@@ -2,6 +2,7 @@ package com.codecool.am_i_tea.service;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -39,6 +40,15 @@ public class PropertyUtil {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
             System.out.println("Failed to load properties!");
+        }
+    }
+
+    private void writeConfigProperties() {
+        try {
+            FileWriter writer = new FileWriter(path + File.separator + fileName);
+            properties.store(writer, null);
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 
