@@ -60,8 +60,9 @@ public class AmITea extends Application {
         propertyUtil = new PropertyUtil(new Properties(), logger);
         projectDAO = new ProjectDAO();
         fileDAO = new TextFileDAO();
-        textFileService = new TextFileService(fileDAO, propertyUtil);
-        projectService = new ProjectService(projectDAO, propertyUtil);
+        textFileService = new TextFileService(fileDAO, propertyUtil, logger);
+        projectService = new ProjectService(projectDAO, propertyUtil, logger);
+        PaintService.setLogger(logger);
 
         logger.initializeLogger();
         logger.getLogger().info("AmITea application started!");
