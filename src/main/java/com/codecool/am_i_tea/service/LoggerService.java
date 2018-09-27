@@ -11,6 +11,7 @@ import java.util.logging.SimpleFormatter;
 public class LoggerService {
 
     private String path;
+    private File logFile;
 
     public LoggerService() {
     }
@@ -38,12 +39,18 @@ public class LoggerService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH-mm-ss");
         String logFileName = "log_" + temp.toLocalDate().toString() + "T" + temp.toLocalTime().format(formatter) + ".txt";
         createLogFile(logFileName);
+    }
 
+    public void log(String message) {
+        Logger amITeaLogger = Logger.getLogger("AmITeaLogger");
         try {
-            FileHandler logFileHandler = new FileHandler(logFilePath + File.separator + logFileName);
+            FileHandler logFileHandler = new FileHandler(path + File.separator + "logs" + File.separator + logFile.getName(), true);
             SimpleFormatter simpleFormatter = new SimpleFormatter();
             logFileHandler.setFormatter(simpleFormatter);
             amITeaLogger.addHandler(logFileHandler);
+
+            amITeaLogger.info(message);
+            logFileHandler.close();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
@@ -59,7 +66,7 @@ public class LoggerService {
 
     private void createLogFile(String fileName) {
         File logFolder = new File(path + File.separator + "logs");
-        File logFile = new File(path + File.separator + fileName);
+        File logFile = new File(path + File.separator + "logs" + File.separator + fileName);
         if (!logFolder.exists()) {
             if (logFolder.mkdirs()) {
                 System.out.println("Log directory created!");
@@ -70,6 +77,7 @@ public class LoggerService {
         if (!logFile.exists()) {
             try {
                 if (logFile.createNewFile()) {
+                    this.logFile = logFile;
                     System.out.println("Log file created!");
                 } else {
                     System.out.println("Failed to create log file!");
