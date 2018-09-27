@@ -32,6 +32,15 @@ public class PropertyUtil {
         readConfigProperties();
     }
 
+    public void setLocationProperty(String location) {
+        properties.setProperty("path", location);
+        writeConfigProperties();
+    }
+
+    public String getLocationProperty() {
+        return properties.getProperty("path");
+    }
+
     private void readConfigProperties() {
         try {
             FileReader reader = new FileReader(path + File.separator + fileName);
@@ -95,12 +104,6 @@ public class PropertyUtil {
         String homeFolder = System.getProperty("user.home");
         String defaultPath = homeFolder + File.separator + "AmITea";
         properties.setProperty("path", defaultPath);
-        writeConfigProperties();
-    }
-
-
-    public void setLocationProperty(String location) {
-        properties.setProperty("path", location);
         writeConfigProperties();
     }
 }
