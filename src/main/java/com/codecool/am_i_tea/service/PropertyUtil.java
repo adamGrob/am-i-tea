@@ -8,6 +8,9 @@ public class PropertyUtil {
 
     private Properties properties;
 
+    private String path;
+    private String fileName;
+
     public PropertyUtil(Properties properties) {
         this.properties = properties;
     }
@@ -24,15 +27,24 @@ public class PropertyUtil {
                 System.out.println("This program is only designed to work under Windows or Linux operation systems!");
                 break;
         }
+        //todo readConfigProperties();
     }
 
     private void initializeWindows() {
+        String programData = System.getenv("%PROGRAMDATA%");
+        path = programData + File.separator + "AmITea" + File.separator + "config";
+        fileName = "config.txt";
+        createConfigFile();
     }
 
     private void initializeLinux() {
         String homeFolder = System.getProperty("user.home");
-        String path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
-        String fileName = "config.properties";
+        path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
+        fileName = "config.properties";
+        createConfigFile();
+    }
+
+    private void createConfigFile() {
         File configFolder = new File(path);
         File configFile = new File(path + File.separator + fileName);
         if (!configFolder.exists()) {
@@ -54,6 +66,8 @@ public class PropertyUtil {
                 System.out.println(ex.getMessage());
             }
         }
-        //todo readConfigProperties();
     }
+
+
+
 }
