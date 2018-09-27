@@ -30,6 +30,7 @@ public class PropertyUtil {
                 fileName = "config.txt";
                 break;
             default:
+                logger.getLogger().warning("This program is only designed to work under Windows or Linux operation systems!");
                 System.out.println("This program is only designed to work under Windows or Linux operation systems!");
                 break;
         }
@@ -50,12 +51,11 @@ public class PropertyUtil {
         try {
             FileReader reader = new FileReader(path + File.separator + fileName);
             properties.load(reader);
-            System.out.println("Properies loaded successfully!");
+            logger.getLogger().info("Properies loaded successfully!");
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-            System.out.println("Failed to load properties!");
+            logger.getLogger().warning("Failed to load properties!");
+            logger.getLogger().warning(ex.getMessage());
         }
-        System.out.println(properties.getProperty("path"));
     }
 
     private void writeConfigProperties() {
@@ -63,7 +63,7 @@ public class PropertyUtil {
             FileWriter writer = new FileWriter(path + File.separator + fileName);
             properties.store(writer, null);
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            logger.getLogger().warning(ex.getMessage());
         }
     }
 
@@ -72,21 +72,21 @@ public class PropertyUtil {
         File configFile = new File(path + File.separator + fileName);
         if (!configFolder.exists()) {
             if (configFolder.mkdirs()) {
-                System.out.println("Config directory created!");
+                logger.getLogger().info("Config directory created!");
             } else {
-                System.out.println("Failed to create config directory!");
+                logger.getLogger().warning("Failed to create config directory!");
             }
         }
         if (!configFile.exists()) {
             try {
                 if (configFile.createNewFile()) {
-                    System.out.println("Config file created!");
+                    logger.getLogger().info("Config file created!");
                     initializeConfigFileProperties();
                 } else {
-                    System.out.println("Failed to create config file!");
+                    logger.getLogger().warning("Failed to create config file!");
                 }
             } catch (IOException ex) {
-                System.out.println(ex.getMessage());
+                logger.getLogger().warning(ex.getMessage());
             }
         }
     }
