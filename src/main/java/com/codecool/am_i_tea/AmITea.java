@@ -65,7 +65,7 @@ public class AmITea extends Application {
         PaintService.setLogger(logger);
 
         logger.initializeLogger();
-        logger.getLogger().info("AmITea application started!");
+        logger.log("AmITea application started!");
 
         propertyUtil.initializeProperties();
 
@@ -111,9 +111,9 @@ public class AmITea extends Application {
             if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 String location = fileChooser.getSelectedFile().getPath();
                 propertyUtil.setLocationProperty(location);
-                logger.getLogger().info("New projects folder selected successfully!");
+                logger.log("New projects folder selected successfully!");
             } else {
-                logger.getLogger().info("No project folder was selected!");
+                logger.log("No project folder was selected!");
             }
         });
 
@@ -164,7 +164,7 @@ public class AmITea extends Application {
 
         closeProjectMenuItem.setOnAction(actionEvent -> {
             // todo save current file (files?) before closing them
-            logger.getLogger().info("Project closed!");
+            logger.log("Project closed!");
 
             ShapeList.getInstance().emptyShapeList();
             graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
@@ -178,7 +178,7 @@ public class AmITea extends Application {
         });
 
         exitMenuItem.setOnAction(actionEvent -> {
-            logger.getLogger().info("AmITea application closed!");
+            logger.log("AmITea application closed!");
             Platform.exit();
         });
 
@@ -279,7 +279,7 @@ public class AmITea extends Application {
         try {
             drawScene = new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml")));
         } catch (IOException e) {
-            logger.getLogger().warning(e.getMessage());
+            logger.log(e.getMessage());
             e.printStackTrace();
         }
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
