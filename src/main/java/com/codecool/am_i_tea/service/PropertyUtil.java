@@ -80,7 +80,7 @@ public class PropertyUtil {
             try {
                 if (configFile.createNewFile()) {
                     System.out.println("Config file created!");
-                    //todo initialiteConfigFileProperties();
+                    initialiteConfigFileProperties();
                 } else {
                     System.out.println("Failed to create config file!");
                 }
@@ -90,6 +90,11 @@ public class PropertyUtil {
         }
     }
 
+    private void initialiteConfigFileProperties() {
+        String homeFolder = System.getProperty("user.home");
+        String defaultPath = homeFolder + File.separator + "AmITea";
+        properties.setProperty("path", defaultPath);
+    }
 
 
 }
