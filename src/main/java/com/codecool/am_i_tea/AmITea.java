@@ -64,6 +64,7 @@ public class AmITea extends Application {
         projectService = new ProjectService(projectDAO, propertyUtil);
 
         logger.initializeLogger();
+        logger.getLogger().info("AmITea application started!");
 
         propertyUtil.initializeProperties();
 
@@ -109,10 +110,10 @@ public class AmITea extends Application {
             if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 String location = fileChooser.getSelectedFile().getPath();
                 propertyUtil.setLocationProperty(location);
-                System.out.println("New projects folder selected successfully!");
+                logger.getLogger().info("New projects folder selected successfully!");
             }
             else {
-                System.out.println("No Selection ");
+                logger.getLogger().info("No project folder was selected!");
             }
         });
 
@@ -163,7 +164,7 @@ public class AmITea extends Application {
 
         closeProjectMenuItem.setOnAction(actionEvent -> {
             // todo save current file (files?) before closing them
-            System.out.println("Project closed!");
+            logger.getLogger().info("Project closed!");
 
             ShapeList.getInstance().emptyShapeList();
             graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
@@ -176,7 +177,10 @@ public class AmITea extends Application {
             editor.setHtmlText("");
         });
 
-        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
+        exitMenuItem.setOnAction(actionEvent -> {
+            logger.getLogger().info("AmITea application closed!");
+            Platform.exit();
+        });
 
         projectMenu.getItems().addAll(newProjectMenuItem,
                 loadProjectMenuItem,
@@ -275,6 +279,7 @@ public class AmITea extends Application {
         try {
             drawScene = new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml")));
         } catch (IOException e) {
+            logger.getLogger().warning(e.getMessage());
             e.printStackTrace();
         }
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
