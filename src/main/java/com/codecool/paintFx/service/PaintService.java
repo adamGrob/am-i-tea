@@ -1,8 +1,8 @@
 package com.codecool.paintFx.service;
 
 import com.codecool.am_i_tea.AmITea;
-import com.codecool.am_i_tea.ProjectDAO;
-import com.codecool.am_i_tea.TextFileDAO;
+import com.codecool.am_i_tea.dao.ProjectDAO;
+import com.codecool.am_i_tea.dao.TextFileDAO;
 import com.codecool.paintFx.model.*;
 
 import java.io.*;

@@ -1,5 +1,9 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.am_i_tea.dao.ProjectDAO;
+import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.am_i_tea.service.ProjectService;
+import com.codecool.am_i_tea.service.TextFileService;
 import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;

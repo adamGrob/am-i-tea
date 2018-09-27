@@ -1,5 +1,8 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.am_i_tea.dao.ProjectDAO;
+import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.am_i_tea.service.TextFileService;
 import javafx.scene.web.HTMLEditor;
 
 public class JavaApplication {

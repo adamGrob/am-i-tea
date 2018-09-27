@@ -1,5 +1,8 @@
-package com.codecool.am_i_tea;
+package com.codecool.am_i_tea.service;
 
+import com.codecool.am_i_tea.AmITea;
+import com.codecool.am_i_tea.model.TextFile;
+import com.codecool.am_i_tea.dao.TextFileDAO;
 import com.codecool.paintFx.model.MyShape;
 import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;

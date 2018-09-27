@@ -1,4 +1,7 @@
-package com.codecool.am_i_tea;
+package com.codecool.am_i_tea.service;
+
+import com.codecool.am_i_tea.model.Project;
+import com.codecool.am_i_tea.dao.ProjectDAO;
 
 import java.io.File;
 import java.util.ArrayList;
