@@ -2,6 +2,7 @@ package com.codecool.am_i_tea;
 
 import com.codecool.am_i_tea.dao.ProjectDAO;
 import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.am_i_tea.service.LoggerService;
 import com.codecool.am_i_tea.service.ProjectService;
 import com.codecool.am_i_tea.service.PropertyUtil;
 import com.codecool.am_i_tea.service.TextFileService;
@@ -45,6 +46,7 @@ public class AmITea extends Application {
     private ProjectDAO projectDAO;
     private TextFileDAO fileDAO;
     private GraphicsContext graphicsContext;
+    private LoggerService logger;
 
 
     public static void main(String[] args) {
@@ -54,11 +56,14 @@ public class AmITea extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        propertyUtil = new PropertyUtil(new Properties());
+        logger = new LoggerService();
+        propertyUtil = new PropertyUtil(new Properties(), logger);
         projectDAO = new ProjectDAO();
         fileDAO = new TextFileDAO();
         textFileService = new TextFileService(fileDAO, propertyUtil);
         projectService = new ProjectService(projectDAO, propertyUtil);
+
+        logger.initializeLogger();
 
         propertyUtil.initializeProperties();
 
