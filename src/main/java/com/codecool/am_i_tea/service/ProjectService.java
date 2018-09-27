@@ -11,15 +11,17 @@ import java.util.List;
 public class ProjectService {
 
     private ProjectDAO projectDAO;
+    private PropertyUtil propertyUtil;
 
-    public ProjectService(ProjectDAO projectDAO) {
+    public ProjectService(ProjectDAO projectDAO, PropertyUtil propertyUtil) {
+        this.propertyUtil = propertyUtil;
         this.projectDAO = projectDAO;
     }
 
     public boolean createProject(String projectName) {
 
-        String homeFolder = System.getProperty("user.home");
-        String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
+        String homeFolder = propertyUtil.getLocationProperty();
+        String projectPath = homeFolder + File.separator + projectName;
 
         File project = new File(projectPath);
         if (!project.exists()) {
@@ -38,8 +40,8 @@ public class ProjectService {
     }
 
     public void loadProject(String projectName) {
-        String homeFolder = System.getProperty("user.home");
-        String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
+        String homeFolder = propertyUtil.getLocationProperty();
+        String projectPath = homeFolder + File.separator + projectName;
         File project = new File(projectPath);
         if (project.exists()){
             projectDAO.setCurrentProject(new Project(projectName, projectPath));
@@ -50,8 +52,7 @@ public class ProjectService {
     }
 
     public List<String> getAllProjects() {
-        String homeFolder = System.getProperty("user.home");
-        String path = homeFolder + File.separator + "AmITea";
+        String path = propertyUtil.getLocationProperty();
         File file = new File(path);
         String[] projects = file.list((current, name) -> new File(current, name).isDirectory());
         if (projects != null) {
