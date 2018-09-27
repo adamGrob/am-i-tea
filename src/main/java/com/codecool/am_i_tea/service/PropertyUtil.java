@@ -1,6 +1,7 @@
 package com.codecool.am_i_tea.service;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -27,7 +28,18 @@ public class PropertyUtil {
                 System.out.println("This program is only designed to work under Windows or Linux operation systems!");
                 break;
         }
-        //todo readConfigProperties();
+        readConfigProperties();
+    }
+
+    private void readConfigProperties() {
+        try {
+            FileReader reader = new FileReader(path + File.separator + fileName);
+            properties.load(reader);
+            System.out.println("Properies loaded successfully!");
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+            System.out.println("Failed to load properties!");
+        }
     }
 
     private void initializeWindows() {
