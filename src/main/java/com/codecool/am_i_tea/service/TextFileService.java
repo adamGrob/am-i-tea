@@ -22,7 +22,7 @@ public class TextFileService {
 
     private TextFileDAO fileDAO;
     private GraphicsContext graphicsContext;
-    PropertyUtil propertyUtil;
+    private PropertyUtil propertyUtil;
 
     public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil) {
         this.fileDAO = fileDAO;
