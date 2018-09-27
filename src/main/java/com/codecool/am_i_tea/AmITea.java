@@ -29,6 +29,7 @@ import netscape.javascript.JSObject;
 import javax.swing.*;
 import java.io.*;
 import java.util.List;
+import java.util.Properties;
 
 
 import static javafx.application.Application.launch;
@@ -51,10 +52,13 @@ public class AmITea extends Application {
     @Override
     public void start(Stage primaryStage) {
 
+        Properties properties = new Properties();
         projectDAO = new ProjectDAO();
         fileDAO = new TextFileDAO();
         textFileService = new TextFileService(fileDAO);
         projectService = new ProjectService(projectDAO);
+
+        initializeProperties(properties);
 
         PaintService.setfileDAO(fileDAO);
         PaintService.setProjectDAO(projectDAO);
@@ -263,7 +267,6 @@ public class AmITea extends Application {
 
         showDrawSceneToolBars(false);
 
-        System.out.println(drawScene.getRoot().getChildrenUnmodifiable());
         graphicsContext = ((Canvas) drawScene.getRoot().getChildrenUnmodifiable().get(1)).getGraphicsContext2D();
         textFileService.setGraphicsContext(graphicsContext);
 
@@ -298,6 +301,36 @@ public class AmITea extends Application {
                 + " document.selection.clear();"
                 + " }\n"
                 + "}";
+    }
+
+    private void initializeProperties(Properties properties) {
+        if (System.getProperty("os.name").equals("Linux")) {
+            String homeFolder = System.getProperty("user.home");
+            String path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
+            String fileName = "config.properties";
+            File configFolder = new File(path);
+            File configFile = new File(path + File.separator + fileName);
+            if (!configFolder.exists()) {
+                if (configFolder.mkdirs()) {
+                    System.out.println("Config directory created!");
+                } else {
+                    System.out.println("Failed to create config directory!");
+                }
+            }
+            if (!configFile.exists()) {
+                try {
+                    if (configFile.createNewFile()) {
+                        System.out.println("Config file created!");
+                        //todo initialiteConfigFileProperties();
+                    } else {
+                        System.out.println("Failed to create config file!");
+                    }
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+            //todo readConfigProperties();
+        }
     }
 
 
