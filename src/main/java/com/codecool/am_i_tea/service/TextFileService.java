@@ -23,10 +23,12 @@ public class TextFileService {
     private TextFileDAO fileDAO;
     private GraphicsContext graphicsContext;
     private PropertyUtil propertyUtil;
+    private LoggerService logger;
 
-    public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil) {
+    public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil, LoggerService loggerService) {
         this.fileDAO = fileDAO;
         this.propertyUtil = propertyUtil;
+        this.logger = loggerService;
     }
 
     public void setGraphicsContext(GraphicsContext graphicsContext) {
@@ -37,17 +39,17 @@ public class TextFileService {
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
             if (file.createNewFile()){
-                System.out.println("File created successfully!");
+                logger.getLogger().info(file.getName() +" created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
                 ShapeList.getInstance().emptyShapeList();
                 graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
                 return PaintService.createNewImageFile();
             } else {
-                System.out.println("File already exists. Choose a unique name!");
+                logger.getLogger().warning(file.getName() + " already exists. Choose a unique name!");
                 return false;
             }
         } catch (IOException ex){
-            System.out.println(ex.getMessage());
+            logger.getLogger().warning(ex.getMessage());
             return false;
         }
     }
@@ -59,10 +61,10 @@ public class TextFileService {
 
         String[] files = file.list((current, name) -> name.endsWith(".html"));
         if (files != null) {
-            System.out.println("Found the list of all files in the project!");
+            logger.getLogger().info("Found the list of all files in the " + projectName + " project!");
             return new ArrayList<>(Arrays.asList(files));
         } else {
-            System.out.println("Couldn't find the list of files in the project!");
+            logger.getLogger().warning("Couldn't find the list of files in the " + projectName + " project!");
             return null;
         }
     }
@@ -76,9 +78,9 @@ public class TextFileService {
         if (file.exists()) {
             saveFile(textToSave, file);
             PaintService.saveImage();
-            System.out.println("File saved successfully!");
+            logger.getLogger().info(file.getName() +" saved successfully!");
         } else {
-            System.out.println("The file doesn't exist!");
+            logger.getLogger().warning("The " + file.getName() + " file doesn't exist!");
         }
     }
 
@@ -94,7 +96,7 @@ public class TextFileService {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
             PaintService.loadImage();
-            System.out.println("File opened successfully!");
+            logger.getLogger().info(file.getName() + " file opened successfully!");
         }
         editor.setHtmlText(content);
         redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
@@ -126,7 +128,7 @@ public class TextFileService {
             bufferedReader.close();
             content = contentBuilder.toString();
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.getLogger().warning(ex.getMessage());
         }
 
         return content;
