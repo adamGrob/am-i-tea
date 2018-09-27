@@ -107,7 +107,7 @@ public class TextFileService {
 
             fileWriter.write(content);
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.getLogger().warning(ex.getMessage());
         }
     }
 
