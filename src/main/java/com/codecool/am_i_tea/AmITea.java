@@ -83,6 +83,7 @@ public class AmITea extends Application {
 
         final Menu fileMenu = new Menu("File");
         final Menu projectMenu = new Menu("Project");
+        final Menu settingsMenu = new Menu("Settings");
 
         final MenuItem newFileMenuItem = new MenuItem("New");
         final MenuItem saveFileMenuItem = new MenuItem("Save");
@@ -92,6 +93,23 @@ public class AmITea extends Application {
         final MenuItem loadProjectMenuItem = new MenuItem("Open");
         final MenuItem closeProjectMenuItem = new MenuItem("Close");
         final MenuItem exitMenuItem = new MenuItem("Exit");
+
+        final MenuItem locationSettingsMenuItem = new MenuItem("Location");
+
+        locationSettingsMenuItem.setOnAction(actionEvent -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("AmITea projects location");
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                String location = fileChooser.getSelectedFile().getPath();
+                propertyUtil.setLocationProperty(location);
+                System.out.println("New projects folder selected successfully!");
+            }
+            else {
+                System.out.println("No Selection ");
+            }
+        });
 
         newProjectMenuItem.setOnAction(actionEvent -> {
             String projectName = JOptionPane.showInputDialog("Project Name");
@@ -104,6 +122,8 @@ public class AmITea extends Application {
                 // todo show error message
             }
         });
+
+        settingsMenu.getItems().addAll(locationSettingsMenuItem);
 
         loadProjectMenuItem.setOnAction(actionEvent -> {
             List<String> projects = projectService.getAllProjects();
@@ -202,7 +222,7 @@ public class AmITea extends Application {
         fileMenu.getItems().addAll(newFileMenuItem, saveFileMenuItem, openFileMenuItem);
         fileMenu.setDisable(true);
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(projectMenu, fileMenu);
+        menuBar.getMenus().addAll(projectMenu, fileMenu, settingsMenu);
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
 
         Node node = editor.lookup(".top-toolbar");
