@@ -41,6 +41,7 @@ public class PropertyUtil {
             System.out.println(ex.getMessage());
             System.out.println("Failed to load properties!");
         }
+        System.out.println(properties.getProperty("path"));
     }
 
     private void writeConfigProperties() {
@@ -80,7 +81,7 @@ public class PropertyUtil {
             try {
                 if (configFile.createNewFile()) {
                     System.out.println("Config file created!");
-                    initialiteConfigFileProperties();
+                    initializeConfigFileProperties();
                 } else {
                     System.out.println("Failed to create config file!");
                 }
@@ -90,11 +91,16 @@ public class PropertyUtil {
         }
     }
 
-    private void initialiteConfigFileProperties() {
+    private void initializeConfigFileProperties() {
         String homeFolder = System.getProperty("user.home");
         String defaultPath = homeFolder + File.separator + "AmITea";
         properties.setProperty("path", defaultPath);
+        writeConfigProperties();
     }
 
 
+    public void setLocationProperty(String location) {
+        properties.setProperty("path", location);
+        writeConfigProperties();
+    }
 }
