@@ -12,23 +12,28 @@ public class PropertyUtil {
 
     private String path;
     private String fileName;
+    private LoggerService logger;
 
-    public PropertyUtil(Properties properties) {
+    public PropertyUtil(Properties properties, LoggerService loggerService) {
         this.properties = properties;
+        this.logger = loggerService;
     }
 
     public void initializeProperties() {
+        path = logger.getPath();
+
         switch (System.getProperty("os.name")) {
             case "Linux":
-                initializeLinux();
+                fileName = "config.properties";
                 break;
             case "Windows":
-                initializeWindows();
+                fileName = "config.txt";
                 break;
             default:
                 System.out.println("This program is only designed to work under Windows or Linux operation systems!");
                 break;
         }
+        createConfigFile();
         readConfigProperties();
     }
 
@@ -60,20 +65,6 @@ public class PropertyUtil {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-    }
-
-    private void initializeWindows() {
-        String programData = System.getenv("%PROGRAMDATA%");
-        path = programData + File.separator + "AmITea" + File.separator + "config";
-        fileName = "config.txt";
-        createConfigFile();
-    }
-
-    private void initializeLinux() {
-        String homeFolder = System.getProperty("user.home");
-        path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
-        fileName = "config.properties";
-        createConfigFile();
     }
 
     private void createConfigFile() {
