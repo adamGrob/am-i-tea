@@ -3,6 +3,7 @@ package com.codecool.am_i_tea;
 import com.codecool.am_i_tea.dao.ProjectDAO;
 import com.codecool.am_i_tea.dao.TextFileDAO;
 import com.codecool.am_i_tea.service.ProjectService;
+import com.codecool.am_i_tea.service.PropertyUtil;
 import com.codecool.am_i_tea.service.TextFileService;
 import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;
@@ -40,6 +41,7 @@ public class AmITea extends Application {
     private Scene drawScene;
     private TextFileService textFileService;
     private ProjectService projectService;
+    private PropertyUtil propertyUtil;
     private ProjectDAO projectDAO;
     private TextFileDAO fileDAO;
     private GraphicsContext graphicsContext;
@@ -52,13 +54,13 @@ public class AmITea extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        Properties properties = new Properties();
+        propertyUtil = new PropertyUtil(new Properties());
         projectDAO = new ProjectDAO();
         fileDAO = new TextFileDAO();
         textFileService = new TextFileService(fileDAO);
         projectService = new ProjectService(projectDAO);
 
-        initializeProperties(properties);
+        propertyUtil.initializeProperties();
 
         PaintService.setfileDAO(fileDAO);
         PaintService.setProjectDAO(projectDAO);
@@ -302,36 +304,4 @@ public class AmITea extends Application {
                 + " }\n"
                 + "}";
     }
-
-    private void initializeProperties(Properties properties) {
-        if (System.getProperty("os.name").equals("Linux")) {
-            String homeFolder = System.getProperty("user.home");
-            String path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
-            String fileName = "config.properties";
-            File configFolder = new File(path);
-            File configFile = new File(path + File.separator + fileName);
-            if (!configFolder.exists()) {
-                if (configFolder.mkdirs()) {
-                    System.out.println("Config directory created!");
-                } else {
-                    System.out.println("Failed to create config directory!");
-                }
-            }
-            if (!configFile.exists()) {
-                try {
-                    if (configFile.createNewFile()) {
-                        System.out.println("Config file created!");
-                        //todo initialiteConfigFileProperties();
-                    } else {
-                        System.out.println("Failed to create config file!");
-                    }
-                } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
-                }
-            }
-            //todo readConfigProperties();
-        }
-    }
-
-
 }
