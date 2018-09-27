@@ -37,7 +37,8 @@ public class LoggerService {
         LocalDateTime temp = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH-mm-ss");
         String logFileName = "log_" + temp.toLocalDate().toString() + "T" + temp.toLocalTime().format(formatter) + ".txt";
-
+        createLogFile(logFileName);
+        
         try {
             FileHandler logFileHandler = new FileHandler(logFilePath + File.separator + logFileName);
             SimpleFormatter simpleFormatter = new SimpleFormatter();
@@ -54,5 +55,28 @@ public class LoggerService {
 
     public String getPath() {
         return path;
+    }
+
+    private void createLogFile(String fileName) {
+        File logFolder = new File(path + File.separator + "logs");
+        File logFile = new File(path + File.separator + fileName);
+        if (!logFolder.exists()) {
+            if (logFolder.mkdirs()) {
+                System.out.println("Log directory created!");
+            } else {
+                System.out.println("Failed to create log directory!");
+            }
+        }
+        if (!logFile.exists()) {
+            try {
+                if (logFile.createNewFile()) {
+                    System.out.println("Log file created!");
+                } else {
+                    System.out.println("Failed to create log file!");
+                }
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
     }
 }
