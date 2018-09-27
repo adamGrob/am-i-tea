@@ -1,15 +1,13 @@
 package com.codecool.paintFx.service;
 
-import com.codecool.am_i_tea.AmITea;
 import com.codecool.am_i_tea.dao.ProjectDAO;
 import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.am_i_tea.service.LoggerService;
 import com.codecool.paintFx.model.*;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -23,6 +21,11 @@ public class PaintService {
 
     private static ProjectDAO projectDAO;
     private static TextFileDAO fileDAO;
+    private static LoggerService logger;
+
+    public static void setLogger(LoggerService loggerService) {
+        logger = loggerService;
+    }
 
     public static void setProjectDAO(ProjectDAO projectDAOStuff) {
         projectDAO = projectDAOStuff;
@@ -37,14 +40,14 @@ public class PaintService {
                 File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
         try {
             if (file.createNewFile()) {
-                System.out.println("Image file created successfully!");
+                logger.getLogger().info(file.getName() + " image file created successfully!");
                 return true;
             } else {
-                System.out.println("Image file already exists. Choose a unique name!");
+                logger.getLogger().warning(file.getName() + " image file already exists. Choose a unique name!");
                 return false;
             }
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            logger.getLogger().warning(ex.getMessage());
             return false;
         }
     }
@@ -112,9 +115,9 @@ public class PaintService {
 
         if (file.exists()) {
             saveImageFile(fullJson, file);
-            System.out.println("Image file saved successfully!");
+            logger.getLogger().info(file.getName() +" image file saved successfully!");
         } else {
-            System.out.println("The image file doesn't exist!");
+            logger.getLogger().warning("The " + file.getName() + " image file doesn't exist!");
         }
     }
 
@@ -138,7 +141,7 @@ public class PaintService {
                 storedLineList = mapper.readValue(straightLineList.toString(), new TypeReference<List<StoredLine>>() {
                 });
             } catch (IOException ex) {
-                System.out.println(ex.getMessage());
+                logger.getLogger().warning(ex.getMessage());
             }
 
             JsonArray customLineList = new Gson().fromJson(listOfShapeTypes.get(1).toString(), JsonArray.class);
@@ -206,9 +209,9 @@ public class PaintService {
 
 
 
-            System.out.println("Image file opened successfully!");
+            logger.getLogger().info(file.getName() + " image file opened successfully!");
         } else {
-            System.out.println("Could not open imafe file!");
+            logger.getLogger().warning("Could not open " + file.getName() + " image file!");
         }
 
     }
@@ -218,7 +221,7 @@ public class PaintService {
 
             fileWriter.write(content);
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.getLogger().warning(ex.getMessage());
         }
     }
 
@@ -239,7 +242,7 @@ public class PaintService {
             bufferedReader.close();
             content = contentBuilder.toString();
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.getLogger().warning(ex.getMessage());
         }
 
         return content;
