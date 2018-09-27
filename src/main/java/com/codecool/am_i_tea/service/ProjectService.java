@@ -12,10 +12,12 @@ public class ProjectService {
 
     private ProjectDAO projectDAO;
     private PropertyUtil propertyUtil;
+    private LoggerService logger;
 
-    public ProjectService(ProjectDAO projectDAO, PropertyUtil propertyUtil) {
+    public ProjectService(ProjectDAO projectDAO, PropertyUtil propertyUtil, LoggerService loggerService) {
         this.propertyUtil = propertyUtil;
         this.projectDAO = projectDAO;
+        this.logger = loggerService;
     }
 
     public boolean createProject(String projectName) {
@@ -26,15 +28,15 @@ public class ProjectService {
         File project = new File(projectPath);
         if (!project.exists()) {
             if (project.mkdirs()) {
-                System.out.println("Project directory is created!");
+                logger.getLogger().info(project.getName() + " project directory created successfully!");
                 projectDAO.setCurrentProject(new Project(projectName, projectPath));
                 return true;
             } else {
-                System.out.println("Failed to create project directory!");
+                logger.getLogger().warning("Failed to create " + project.getName() + " project directory!");
                 return false;
             }
         } else {
-            System.out.println("Project already exists. Choose another name!");
+            logger.getLogger().warning(project.getName() + " project already exists. Choose another name!");
             return false;
         }
     }
@@ -45,9 +47,9 @@ public class ProjectService {
         File project = new File(projectPath);
         if (project.exists()){
             projectDAO.setCurrentProject(new Project(projectName, projectPath));
-            System.out.println("Successfully opened project!");
+            logger.getLogger().info("Successfully opened " + project.getName() + " project!");
         } else {
-            System.out.println("Couldn't open project!");
+            logger.getLogger().warning("Couldn't open " + project.getName() + " project!");
         }
     }
 
@@ -56,10 +58,10 @@ public class ProjectService {
         File file = new File(path);
         String[] projects = file.list((current, name) -> new File(current, name).isDirectory());
         if (projects != null) {
-            System.out.println("Found the list of all projects!");
+            logger.getLogger().info("Found the list of all projects!");
             return new ArrayList<>(Arrays.asList(projects));
         } else {
-            System.out.println("Couldn't find the list of projects!");
+            logger.getLogger().warning("Couldn't find the list of projects!");
             return null;
         }
     }
