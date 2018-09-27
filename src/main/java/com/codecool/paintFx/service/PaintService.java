@@ -40,14 +40,14 @@ public class PaintService {
                 File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
         try {
             if (file.createNewFile()) {
-                logger.getLogger().info(file.getName() + " image file created successfully!");
+                logger.log(file.getName() + " image file created successfully!");
                 return true;
             } else {
-                logger.getLogger().warning(file.getName() + " image file already exists. Choose a unique name!");
+                logger.log(file.getName() + " image file already exists. Choose a unique name!");
                 return false;
             }
         } catch (IOException ex) {
-            logger.getLogger().warning(ex.getMessage());
+            logger.log(ex.getMessage());
             return false;
         }
     }
@@ -115,9 +115,9 @@ public class PaintService {
 
         if (file.exists()) {
             saveImageFile(fullJson, file);
-            logger.getLogger().info(file.getName() + " image file saved successfully!");
+            logger.log(file.getName() + " image file saved successfully!");
         } else {
-            logger.getLogger().warning("The " + file.getName() + " image file doesn't exist!");
+            logger.log("The " + file.getName() + " image file doesn't exist!");
         }
     }
 
@@ -141,7 +141,7 @@ public class PaintService {
                 storedLineList = mapper.readValue(straightLineList.toString(), new TypeReference<List<StoredLine>>() {
                 });
             } catch (IOException ex) {
-                logger.getLogger().warning(ex.getMessage());
+                logger.log(ex.getMessage());
             }
 
             JsonArray customLineList = new Gson().fromJson(listOfShapeTypes.get(1).toString(), JsonArray.class);
@@ -209,9 +209,9 @@ public class PaintService {
             }
 
 
-            logger.getLogger().info(file.getName() + " image file opened successfully!");
+            logger.log(file.getName() + " image file opened successfully!");
         } else {
-            logger.getLogger().warning("Could not open " + file.getName() + " image file!");
+            logger.log("Could not open " + file.getName() + " image file!");
         }
 
     }
@@ -221,7 +221,7 @@ public class PaintService {
 
             fileWriter.write(content);
         } catch (IOException ex) {
-            logger.getLogger().warning(ex.getMessage());
+            logger.log(ex.getMessage());
         }
     }
 
@@ -242,7 +242,7 @@ public class PaintService {
             bufferedReader.close();
             content = contentBuilder.toString();
         } catch (IOException ex) {
-            logger.getLogger().warning(ex.getMessage());
+            logger.log(ex.getMessage());
         }
 
         return content;

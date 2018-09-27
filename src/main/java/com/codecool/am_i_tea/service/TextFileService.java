@@ -36,17 +36,17 @@ public class TextFileService {
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
             if (file.createNewFile()) {
-                logger.getLogger().info(file.getName() + " created successfully!");
+                logger.log(file.getName() + " created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
                 ShapeList.getInstance().emptyShapeList();
                 graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
                 return PaintService.createNewImageFile();
             } else {
-                logger.getLogger().warning(file.getName() + " already exists. Choose a unique name!");
+                logger.log(file.getName() + " already exists. Choose a unique name!");
                 return false;
             }
         } catch (IOException ex) {
-            logger.getLogger().warning(ex.getMessage());
+            logger.log(ex.getMessage());
             return false;
         }
     }
@@ -58,10 +58,10 @@ public class TextFileService {
 
         String[] files = file.list((current, name) -> name.endsWith(".html"));
         if (files != null) {
-            logger.getLogger().info("Found the list of all files in the " + projectName + " project!");
+            logger.log("Found the list of all files in the " + projectName + " project!");
             return new ArrayList<>(Arrays.asList(files));
         } else {
-            logger.getLogger().warning("Couldn't find the list of files in the " + projectName + " project!");
+            logger.log("Couldn't find the list of files in the " + projectName + " project!");
             return null;
         }
     }
@@ -75,9 +75,9 @@ public class TextFileService {
         if (file.exists()) {
             saveFile(textToSave, file);
             PaintService.saveImage();
-            logger.getLogger().info(file.getName() + " saved successfully!");
+            logger.log(file.getName() + " saved successfully!");
         } else {
-            logger.getLogger().warning("The " + file.getName() + " file doesn't exist!");
+            logger.log("The " + file.getName() + " file doesn't exist!");
         }
     }
 
@@ -93,7 +93,7 @@ public class TextFileService {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
             PaintService.loadImage();
-            logger.getLogger().info(file.getName() + " file opened successfully!");
+            logger.log(file.getName() + " file opened successfully!");
         }
         editor.setHtmlText(content);
         redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
@@ -104,7 +104,7 @@ public class TextFileService {
 
             fileWriter.write(content);
         } catch (IOException ex) {
-            logger.getLogger().warning(ex.getMessage());
+            logger.log(ex.getMessage());
         }
     }
 
@@ -125,7 +125,7 @@ public class TextFileService {
             bufferedReader.close();
             content = contentBuilder.toString();
         } catch (IOException ex) {
-            logger.getLogger().warning(ex.getMessage());
+            logger.log(ex.getMessage());
         }
 
         return content;

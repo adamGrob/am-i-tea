@@ -28,15 +28,15 @@ public class ProjectService {
         File project = new File(projectPath);
         if (!project.exists()) {
             if (project.mkdirs()) {
-                logger.getLogger().info(project.getName() + " project directory created successfully!");
+                logger.log(project.getName() + " project directory created successfully!");
                 projectDAO.setCurrentProject(new Project(projectName, projectPath));
                 return true;
             } else {
-                logger.getLogger().warning("Failed to create " + project.getName() + " project directory!");
+                logger.log("Failed to create " + project.getName() + " project directory!");
                 return false;
             }
         } else {
-            logger.getLogger().warning(project.getName() + " project already exists. Choose another name!");
+            logger.log(project.getName() + " project already exists. Choose another name!");
             return false;
         }
     }
@@ -47,9 +47,9 @@ public class ProjectService {
         File project = new File(projectPath);
         if (project.exists()) {
             projectDAO.setCurrentProject(new Project(projectName, projectPath));
-            logger.getLogger().info("Successfully opened " + project.getName() + " project!");
+            logger.log("Successfully opened " + project.getName() + " project!");
         } else {
-            logger.getLogger().warning("Couldn't open " + project.getName() + " project!");
+            logger.log("Couldn't open " + project.getName() + " project!");
         }
     }
 
@@ -58,10 +58,10 @@ public class ProjectService {
         File file = new File(path);
         String[] projects = file.list((current, name) -> new File(current, name).isDirectory());
         if (projects != null) {
-            logger.getLogger().info("Found the list of all projects!");
+            logger.log("Found the list of all projects!");
             return new ArrayList<>(Arrays.asList(projects));
         } else {
-            logger.getLogger().warning("Couldn't find the list of projects!");
+            logger.log("Couldn't find the list of projects!");
             return null;
         }
     }

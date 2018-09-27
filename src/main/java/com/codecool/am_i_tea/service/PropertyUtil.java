@@ -51,10 +51,10 @@ public class PropertyUtil {
         try {
             FileReader reader = new FileReader(path + File.separator + fileName);
             properties.load(reader);
-            logger.getLogger().info("Properies loaded successfully!");
+            logger.log("Properies loaded successfully!");
         } catch (IOException ex) {
-            logger.getLogger().warning("Failed to load properties!");
-            logger.getLogger().warning(ex.getMessage());
+            logger.log("Failed to load properties!");
+            logger.log(ex.getMessage());
         }
     }
 
@@ -63,7 +63,7 @@ public class PropertyUtil {
             FileWriter writer = new FileWriter(path + File.separator + fileName);
             properties.store(writer, null);
         } catch (IOException ex) {
-            logger.getLogger().warning(ex.getMessage());
+            logger.log(ex.getMessage());
         }
     }
 
@@ -72,21 +72,21 @@ public class PropertyUtil {
         File configFile = new File(path + File.separator + fileName);
         if (!configFolder.exists()) {
             if (configFolder.mkdirs()) {
-                logger.getLogger().info("Config directory created!");
+                logger.log("Config directory created!");
             } else {
-                logger.getLogger().warning("Failed to create config directory!");
+                logger.log("Failed to create config directory!");
             }
         }
         if (!configFile.exists()) {
             try {
                 if (configFile.createNewFile()) {
-                    logger.getLogger().info("Config file created!");
+                    logger.log("Config file created!");
                     initializeConfigFileProperties();
                 } else {
-                    logger.getLogger().warning("Failed to create config file!");
+                    logger.log("Failed to create config file!");
                 }
             } catch (IOException ex) {
-                logger.getLogger().warning(ex.getMessage());
+                logger.log(ex.getMessage());
             }
         }
     }
