@@ -57,8 +57,8 @@ public class AmITea extends Application {
         propertyUtil = new PropertyUtil(new Properties());
         projectDAO = new ProjectDAO();
         fileDAO = new TextFileDAO();
-        textFileService = new TextFileService(fileDAO);
-        projectService = new ProjectService(projectDAO);
+        textFileService = new TextFileService(fileDAO, propertyUtil);
+        projectService = new ProjectService(projectDAO, propertyUtil);
 
         propertyUtil.initializeProperties();
 
