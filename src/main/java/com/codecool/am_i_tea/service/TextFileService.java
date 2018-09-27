@@ -22,9 +22,11 @@ public class TextFileService {
 
     private TextFileDAO fileDAO;
     private GraphicsContext graphicsContext;
+    PropertyUtil propertyUtil;
 
-    public TextFileService(TextFileDAO fileDAO) {
+    public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil) {
         this.fileDAO = fileDAO;
+        this.propertyUtil = propertyUtil;
     }
 
     public void setGraphicsContext(GraphicsContext graphicsContext) {
@@ -51,8 +53,8 @@ public class TextFileService {
     }
 
     public List<String> getAllFilesOfProject(String projectName) {
-        String homeFolder = System.getProperty("user.home");
-        String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
+        String homeFolder = propertyUtil.getLocationProperty();
+        String projectPath = homeFolder + File.separator + projectName;
         File file = new File(projectPath);
 
         String[] files = file.list((current, name) -> name.endsWith(".html"));
