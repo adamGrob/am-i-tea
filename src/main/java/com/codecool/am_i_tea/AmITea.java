@@ -255,6 +255,7 @@ public class AmITea extends Application {
                 String targetFileName = JOptionPane.showInputDialog("Enter file name");
 
                 String selected = (String) webView.getEngine().executeScript("window.getSelection().toString();");
+                selected = formatSelection(selected);
                 String hyperlinkHtml = "<span style=\"color:blue; text-decoration:underline; \" onClick=\"" +
                         "window.app.openLinkedFile(\\'" + targetFileName + "\\')\"" + ">" + selected + "</span>";
                 webView.getEngine().executeScript(getInsertHtmlAtCursorJS(hyperlinkHtml));
@@ -306,6 +307,11 @@ public class AmITea extends Application {
         primaryStage.show();
 
 
+    }
+
+    private String formatSelection(String selected) {
+        selected = selected.replaceAll("\\n\\n", "<br>");
+        return selected.replaceAll("\\\\", "\\\\\\\\");
     }
 
     private void showDrawSceneToolBars(Boolean show) {
