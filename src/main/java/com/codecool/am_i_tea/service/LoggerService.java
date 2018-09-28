@@ -18,18 +18,16 @@ public class LoggerService {
 
     public void initializeLogger() {
 
-        switch (System.getProperty("os.name")) {
-            case "Linux":
-                String homeFolder = System.getProperty("user.home");
-                path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
-                break;
-            case "Windows":
-                String programData = System.getenv("%PROGRAMDATA%");
-                path = programData + File.separator + "AmITea" + File.separator + "config";
-                break;
-            default:
+        String osName = System.getProperty("os.name");
+
+        if (osName.contains("Linux")) {
+            String homeFolder = System.getProperty("user.home");
+            path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
+        } else if (osName.toLowerCase().contains("windows")) {
+            String programData = System.getenv("APPDATA");
+            path = programData + File.separator + "AmITea" + File.separator + "config";
+        } else{
                 System.out.println("This program is only designed to work under Windows or Linux operation systems!");
-                break;
         }
 
         Logger amITeaLogger = Logger.getLogger("AmITeaLogger");
