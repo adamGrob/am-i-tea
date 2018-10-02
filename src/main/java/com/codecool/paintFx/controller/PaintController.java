@@ -240,7 +240,7 @@ public class PaintController {
     }
 
     private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext) {
-        graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        clearCanvas();
         for (MyShape myShape : drawnShapeList) {
             setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
             myShape.display(graphicsContext);
@@ -252,5 +252,13 @@ public class PaintController {
         graphicsContext.setStroke(value);
         graphicsContext.setLineWidth(size);
         graphicsContext.setLineCap(StrokeLineCap.ROUND);
+    }
+
+    public void clearCanvas() {
+        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+
+    public void clearShapeList() {
+        drawnShapeList.clear();
     }
 }
