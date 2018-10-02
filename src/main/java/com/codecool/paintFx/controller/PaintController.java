@@ -240,11 +240,28 @@ public class PaintController {
             graphicsContext.strokeLine(startX, startY, currX, currY);
         } else if (shapeEnum.equals(ShapeEnum.RECTANGLE)) {
             redraw(drawnShapeList, graphicsContext);
-            graphicsContext.strokeRect(startX, startY, Math.abs(currX - startX), Math.abs(currY - startY));
+            double[] startCoords = adjustCoordinates(startX, startY, currX, currY);
+            graphicsContext.strokeRect(startCoords[0], startCoords[1], Math.abs(currX - startX), Math.abs(currY - startY));
         } else if (shapeEnum.equals(ShapeEnum.OVAL)) {
             redraw(drawnShapeList, graphicsContext);
-            graphicsContext.strokeOval(startX, startY, Math.abs(currX - startX), Math.abs(currY - startY));
+            double[] startCoords = adjustCoordinates(startX, startY, currX, currY);
+            graphicsContext.strokeOval(startCoords[0], startCoords[1], Math.abs(currX - startX), Math.abs(currY - startY));
         }
+    }
+
+    private double[] adjustCoordinates(double startX, double startY, double currX, double currY) {
+        double[] startCoords = new double[2];
+        if (currX < startX) {
+            startCoords[0] = currX;
+        } else {
+            startCoords[0] = startX;
+        }
+        if (currY < startY) {
+            startCoords[1] = currY;
+        } else {
+            startCoords[1] = startY;
+        }
+        return startCoords;
     }
 
     private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext) {
