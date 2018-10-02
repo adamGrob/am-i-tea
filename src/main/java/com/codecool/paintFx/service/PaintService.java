@@ -3,6 +3,7 @@ package com.codecool.paintFx.service;
 import com.codecool.am_i_tea.dao.ProjectDAO;
 import com.codecool.am_i_tea.dao.TextFileDAO;
 import com.codecool.am_i_tea.service.LoggerService;
+import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.model.*;
 
 import java.io.*;
@@ -19,23 +20,34 @@ import org.codehaus.jackson.type.TypeReference;
 
 public class PaintService {
 
-    private static ProjectDAO projectDAO;
-    private static TextFileDAO fileDAO;
-    private static LoggerService logger;
+    private ProjectDAO projectDAO;
+    private TextFileDAO fileDAO;
+    private LoggerService logger;
+    private PaintController paintController;
 
-    public static void setLogger(LoggerService loggerService) {
+    public PaintService(ProjectDAO projectDAO, TextFileDAO fileDAO, LoggerService logger) {
+        this.projectDAO = projectDAO;
+        this.fileDAO = fileDAO;
+        this.logger = logger;
+    }
+
+    public void setPaintController(PaintController paintController) {
+        this.paintController = paintController;
+    }
+
+    public void setLogger(LoggerService loggerService) {
         logger = loggerService;
     }
 
-    public static void setProjectDAO(ProjectDAO projectDAOStuff) {
+    public void setProjectDAO(ProjectDAO projectDAOStuff) {
         projectDAO = projectDAOStuff;
     }
 
-    public static void setfileDAO(TextFileDAO fileDAOStuff) {
+    public void setfileDAO(TextFileDAO fileDAOStuff) {
         fileDAO = fileDAOStuff;
     }
 
-    public static boolean createNewImageFile() {
+    public boolean createNewImageFile() {
         File file = new File(projectDAO.getCurrentProject().getPath() +
                 File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
         try {
@@ -52,7 +64,7 @@ public class PaintService {
         }
     }
 
-    public static void saveImage() {
+    public void saveImage() {
 
         String path = projectDAO.getCurrentProject().getPath() + File.separator +
                 fileDAO.getCurrentFile().getName() + "_image.txt";
@@ -63,7 +75,7 @@ public class PaintService {
         List<StoredRectangle> storedRectangleList = new ArrayList<>();
         List<StoredCircle> storedCircleList = new ArrayList<>();
 
-        for (MyShape myShape : ShapeList.getInstance().getShapeList()) {
+        for (MyShape myShape : paintController.getDrawnShapeList()) {
             if (myShape instanceof StraightLine) {
                 storedLineList.add(new StoredLine(myShape.getStartX(),
                         myShape.getStartY(),
@@ -121,7 +133,7 @@ public class PaintService {
         }
     }
 
-    public static void loadImage() {
+    public void loadImage() {
 
         File file = new File(projectDAO.getCurrentProject().getPath() +
                 File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
@@ -181,7 +193,7 @@ public class PaintService {
                 System.out.println(ex.getMessage());
             }
 
-            List<MyShape> storedShapeList = ShapeList.getInstance().getShapeList();
+            List<MyShape> storedShapeList = paintController.getDrawnShapeList();
             for (StoredLine line : storedLineList) {
                 Color color = new Color(line.getRed(), line.getGreen(), line.getBlue(), 1.0);
                 storedShapeList.add(new StraightLine(line.getStartX(), line.getStartY(),
@@ -216,7 +228,7 @@ public class PaintService {
 
     }
 
-    private static void saveImageFile(String content, File file) {
+    private void saveImageFile(String content, File file) {
         try (FileWriter fileWriter = new FileWriter(file)) {
 
             fileWriter.write(content);
@@ -225,7 +237,7 @@ public class PaintService {
         }
     }
 
-    private static String openImageFile(File file) {
+    private String openImageFile(File file) {
 
         String content = "";
         try (FileReader fileReader = new FileReader(file)) {

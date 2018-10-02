@@ -75,6 +75,10 @@ public class PaintController {
         return canvas;
     }
 
+    public List<MyShape> getDrawnShapeList() {
+        return drawnShapeList;
+    }
+
     public void initialize() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         ShapeList.getInstance().setShapeList(drawnShapeList);
