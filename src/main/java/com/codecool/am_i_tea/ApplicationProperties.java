@@ -1,10 +1,10 @@
 package com.codecool.am_i_tea;
 
-public class AoplicationProperties {
+public class ApplicationProperties {
 
     private String configFolderPath;
 
-    public AoplicationProperties() {
+    public ApplicationProperties() {
     }
 
     public String getConfigFolderPath() {
