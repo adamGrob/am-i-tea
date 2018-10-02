@@ -40,6 +40,7 @@ public class AmITea extends Application {
     private LoggerService logger;
     private EditorMenuController editorMenuController;
     private EditorController editorController;
+    private JavaApplication javaApp;
 
     public static void main(String[] args) {
         launch(args);
@@ -51,13 +52,13 @@ public class AmITea extends Application {
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.initialize();
 
-        projectDAO = new ProjectDAO();
-        fileDAO = new TextFileDAO();
-
         logger = new LoggerService(applicationProperties);
         logger.initializeLogger();
         propertyUtil = new PropertyUtil(new Properties(), logger, applicationProperties);
         propertyUtil.initializeProperties();
+
+        projectDAO = new ProjectDAO();
+        fileDAO = new TextFileDAO();
 
         textFileService = new TextFileService(fileDAO, propertyUtil, logger);
         projectService = new ProjectService(projectDAO, propertyUtil, logger);
@@ -65,34 +66,21 @@ public class AmITea extends Application {
         PaintService.setfileDAO(fileDAO);
         PaintService.setProjectDAO(projectDAO);
 
-        //todo: this is not in the right order
         HTMLEditor editor = new HTMLEditor();
-        editor.setVisible(false);
-        WebView webView = (WebView) editor.lookup("WebView");
+        javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
 
         editorMenuController = new EditorMenuController(logger, propertyUtil, projectService,
                 textFileService, projectDAO, fileDAO, primaryStage, editor, graphicsContext);
         editorMenuController.initializeMenuBar();
 
-        editorController = new EditorController(editor, wrapper, webView);
+        editorController = new EditorController(editor, wrapper, javaApp);
         editorController.addButtonsToEditorToolbar();
-
-        logger.log("AmITea application started!");
-
-
-
-
-
-        JavaApplication javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
-
-        webView.getEngine().setJavaScriptEnabled(true);
-        webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-            final JSObject window = (JSObject) webView.getEngine().executeScript("window");
-            window.setMember("app", javaApp);
-        });
+        editorController.setJavaApplicationConnection();
 
         primaryStage.setTitle("Am-I-Tea text editor");
+        editor.setVisible(false);
 
+        logger.log("AmITea application started!");
 
 
         try {

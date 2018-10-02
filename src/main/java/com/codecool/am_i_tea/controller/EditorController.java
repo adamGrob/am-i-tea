@@ -1,5 +1,6 @@
 package com.codecool.am_i_tea.controller;
 
+import com.codecool.am_i_tea.JavaApplication;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -9,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
+import netscape.javascript.JSObject;
 
 import javax.swing.*;
 
@@ -16,12 +18,23 @@ public class EditorController {
 
     private HTMLEditor editor;
     private StackPane wrapper;
+    private JavaApplication javaApp;
+
     private WebView webView;
 
-    public EditorController(HTMLEditor editor, StackPane wrapper, WebView webView) {
+    public EditorController(HTMLEditor editor, StackPane wrapper, JavaApplication javaApp) {
         this.editor = editor;
         this.wrapper = wrapper;
-        this.webView = webView;
+        this.javaApp = javaApp;
+        this.webView = (WebView) editor.lookup("WebView");
+    }
+
+    public void setJavaApplicationConnection() {
+        webView.getEngine().setJavaScriptEnabled(true);
+        webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            final JSObject window = (JSObject) webView.getEngine().executeScript("window");
+            window.setMember("app", javaApp);
+        });
     }
 
     public void addButtonsToEditorToolbar() {
