@@ -48,7 +48,6 @@ public class AmITea extends Application {
     private GraphicsContext graphicsContext;
     private LoggerService logger;
 
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -56,10 +55,15 @@ public class AmITea extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        logger = new LoggerService();
-        propertyUtil = new PropertyUtil(new Properties(), logger);
+        ApplicationProperties applicationProperties = new ApplicationProperties();
+        applicationProperties.initialize();
+
         projectDAO = new ProjectDAO();
         fileDAO = new TextFileDAO();
+
+        logger = new LoggerService(applicationProperties);
+        propertyUtil = new PropertyUtil(new Properties(), logger, applicationProperties);
+
         textFileService = new TextFileService(fileDAO, propertyUtil, logger);
         projectService = new ProjectService(projectDAO, propertyUtil, logger);
         PaintService.setLogger(logger);
