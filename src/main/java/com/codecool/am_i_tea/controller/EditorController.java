@@ -1,13 +1,12 @@
 package com.codecool.am_i_tea.controller;
 
 import com.codecool.am_i_tea.JavaApplication;
+import com.codecool.paintFx.controller.PaintController;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -19,6 +18,7 @@ public class EditorController {
     private HTMLEditor editor;
     private StackPane wrapper;
     private JavaApplication javaApp;
+    private PaintController paintController;
 
     private WebView webView;
 
@@ -30,6 +30,10 @@ public class EditorController {
 
     public void setWrapper(StackPane wrapper) {
         this.wrapper = wrapper;
+    }
+
+    public void setPaintController(PaintController paintController) {
+        this.paintController = paintController;
     }
 
     public void setJavaApplicationConnection() {
@@ -67,15 +71,11 @@ public class EditorController {
         }
     }
 
-    public void showDrawSceneToolBars(Boolean show) {
-        Node myDrawNode = wrapper.getChildren().get(1);
-        BorderPane myDrawScene = (BorderPane) myDrawNode;
-        VBox myVbox = (VBox) myDrawScene.getChildren().get(0);
-        Node topToolBar = myVbox.getChildren().get(0);
-        Node bottomToolBar = myVbox.getChildren().get(1);
-        topToolBar.setVisible(show);
-        bottomToolBar.setVisible(show);
-
+    private void showDrawSceneToolBars() {
+        Node topToolBar = paintController.getTopToolbar();
+        Node bottomToolBar = paintController.getBottomToolbar();
+        topToolBar.setVisible(true);
+        bottomToolBar.setVisible(true);
     }
 
     private void changeTextToLink() {
@@ -90,11 +90,7 @@ public class EditorController {
 
     private void switchToDrawMode() {
         wrapper.getChildren().get(1).setMouseTransparent(false);
-        Node topToolBar = editor.lookup(".top-toolbar");
-        Node bottomToolBar = editor.lookup(".bottom-toolbar");
-        topToolBar.setVisible(false);
-        bottomToolBar.setVisible(false);
-        showDrawSceneToolBars(true);
+        showDrawSceneToolBars();
     }
 
     private String formatSelection(String selected) {

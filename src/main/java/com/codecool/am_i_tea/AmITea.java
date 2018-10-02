@@ -81,9 +81,7 @@ public class AmITea extends Application {
         primaryStage.setTitle("Am-I-Tea text editor");
         editor.setVisible(false);
 
-
         logger.log("AmITea application started!");
-
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("paint.fxml"));
         try {
@@ -99,15 +97,11 @@ public class AmITea extends Application {
 
         wrapper = new StackPane();
         editorController.setWrapper(wrapper);
+        editorController.setPaintController(paintController);
         editorMenuController.setPaintController(paintController);
         paintService.setPaintController(paintController);
 
-
-
-
-
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
-
 
         VBox editorVbox = new VBox();
         Scene editorScene = new Scene(editorVbox, 640, 480);
@@ -122,7 +116,5 @@ public class AmITea extends Application {
 
         primaryStage.setScene(wrapperScene);
         primaryStage.show();
-
-
     }
 }

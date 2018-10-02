@@ -9,9 +9,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -63,7 +63,8 @@ public class PaintController {
     @FXML
     Button textEditorButton;
 
-    @FXML ToggleGroup toggleGroup1;
+    @FXML
+    ToggleGroup toggleGroup1;
 
     @FXML
     ToolBar topToolbar;
@@ -77,6 +78,14 @@ public class PaintController {
 
     public List<MyShape> getDrawnShapeList() {
         return drawnShapeList;
+    }
+
+    public ToolBar getTopToolbar() {
+        return topToolbar;
+    }
+
+    public ToolBar getBottomToolbar() {
+        return bottomToolbar;
     }
 
     public void initialize() {
@@ -99,23 +108,18 @@ public class PaintController {
             canvas.setWidth(borderPane.getWidth() - 30);
         });
         borderPane.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
-            canvas.setHeight(borderPane.getHeight()-90);
+            canvas.setHeight(borderPane.getHeight() - 90);
         });
     }
 
     private void handleTextEditorButton() {
         textEditorButton.setOnAction(actionEvent -> {
-            StackPane myStackPane = (StackPane)canvas.getParent().getParent();
+            StackPane myStackPane = (StackPane) canvas.getParent().getParent();
             Node drawNode = myStackPane.getChildren().get(1);
             topToolbar.setVisible(false);
             bottomToolbar.setVisible(false);
             drawNode.setMouseTransparent(true);
-            VBox editorVbox = (VBox) myStackPane.getChildren().get(0);
-            Node node = editorVbox.lookup(".top-toolbar");
-            Node node2 = editorVbox.lookup(".bottom-toolbar");
-            node.setVisible(true);
-            node2.setVisible(true);
-            });
+        });
     }
 
     private void handleMousePressed() {
