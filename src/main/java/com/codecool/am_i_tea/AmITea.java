@@ -1,5 +1,6 @@
 package com.codecool.am_i_tea;
 
+import com.codecool.am_i_tea.controller.EditorMenuController;
 import com.codecool.am_i_tea.dao.ProjectDAO;
 import com.codecool.am_i_tea.dao.TextFileDAO;
 import com.codecool.am_i_tea.service.LoggerService;
@@ -47,6 +48,7 @@ public class AmITea extends Application {
     private TextFileDAO fileDAO;
     private GraphicsContext graphicsContext;
     private LoggerService logger;
+    private EditorMenuController editorMenuController;
 
     public static void main(String[] args) {
         launch(args);
@@ -62,22 +64,29 @@ public class AmITea extends Application {
         fileDAO = new TextFileDAO();
 
         logger = new LoggerService(applicationProperties);
+        logger.initializeLogger();
         propertyUtil = new PropertyUtil(new Properties(), logger, applicationProperties);
+        propertyUtil.initializeProperties();
 
         textFileService = new TextFileService(fileDAO, propertyUtil, logger);
         projectService = new ProjectService(projectDAO, propertyUtil, logger);
         PaintService.setLogger(logger);
-
-        logger.initializeLogger();
-        logger.log("AmITea application started!");
-
-        propertyUtil.initializeProperties();
-
         PaintService.setfileDAO(fileDAO);
         PaintService.setProjectDAO(projectDAO);
 
+        //todo: this is not in the right order
         HTMLEditor editor = new HTMLEditor();
         editor.setVisible(false);
+
+        editorMenuController = new EditorMenuController(logger, propertyUtil, projectService,
+                textFileService, projectDAO, fileDAO, primaryStage, editor, graphicsContext);
+
+        logger.log("AmITea application started!");
+
+
+
+
+
 
         WebView webView = (WebView) editor.lookup("WebView");
         JavaApplication javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
@@ -88,155 +97,11 @@ public class AmITea extends Application {
             window.setMember("app", javaApp);
         });
 
-        final JSObject window = (JSObject) webView.getEngine().executeScript("window");
-
         primaryStage.setTitle("Am-I-Tea text editor");
 
-        final Menu fileMenu = new Menu("File");
-        final Menu projectMenu = new Menu("Project");
-        final Menu settingsMenu = new Menu("Settings");
 
-        final MenuItem newFileMenuItem = new MenuItem("New");
-        final MenuItem saveFileMenuItem = new MenuItem("Save");
-        final MenuItem openFileMenuItem = new MenuItem("Open");
-
-        final MenuItem newProjectMenuItem = new MenuItem("New");
-        final MenuItem loadProjectMenuItem = new MenuItem("Open");
-        final MenuItem closeProjectMenuItem = new MenuItem("Close");
-        final MenuItem exitMenuItem = new MenuItem("Exit");
-
-        final MenuItem locationSettingsMenuItem = new MenuItem("Location");
-
-        locationSettingsMenuItem.setOnAction(actionEvent -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("AmITea projects location");
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            fileChooser.setAcceptAllFileFilterUsed(false);
-            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                String location = fileChooser.getSelectedFile().getPath();
-                propertyUtil.setLocationProperty(location);
-                logger.log("New projects folder selected successfully!");
-            } else {
-                logger.log("No project folder was selected!");
-            }
-        });
-
-        newProjectMenuItem.setOnAction(actionEvent -> {
-            String projectName = JOptionPane.showInputDialog("Project Name");
-            if (projectService.createProject(projectName)) {
-                fileMenu.setDisable(false);
-                editor.setVisible(false);
-                editor.setHtmlText("");
-                //todo show editor window and other menus only then
-            } else {
-                // todo show error message
-            }
-        });
-
-        settingsMenu.getItems().addAll(locationSettingsMenuItem);
-
-        loadProjectMenuItem.setOnAction(actionEvent -> {
-            List<String> projects = projectService.getAllProjects();
-
-            ListView<String> projectList = new ListView<>();
-            ObservableList<String> items = FXCollections.observableArrayList(projects);
-            projectList.setItems(items);
-
-            StackPane temporaryWindow = new StackPane();
-            temporaryWindow.getChildren().addAll(projectList);
-            Scene tempScene = new Scene(temporaryWindow, 200, 320);
-            Stage tempWindow = new Stage();
-            tempWindow.setTitle("Projects");
-            tempWindow.setScene(tempScene);
-
-            tempWindow.setX(primaryStage.getX() + 12);
-            tempWindow.setY(primaryStage.getY() + 28);
-
-            projectList.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
-                    String projectName = projectList.getSelectionModel().getSelectedItem();
-                    projectService.loadProject(projectName);
-                    fileMenu.setDisable(false);
-                    editor.setVisible(false);
-                    editor.setHtmlText("");
-                    tempWindow.close();
-                }
-            });
-
-            tempWindow.show();
-        });
-
-        closeProjectMenuItem.setOnAction(actionEvent -> {
-            // todo save current file (files?) before closing them
-            logger.log("Project closed!");
-
-            ShapeList.getInstance().emptyShapeList();
-            graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
-
-            fileDAO.setCurrentFile(null);
-            projectDAO.setCurrentProject(null);
-            fileMenu.setDisable(true);
-            saveFileMenuItem.setDisable(true);
-            editor.setVisible(false);
-            editor.setHtmlText("");
-        });
-
-        exitMenuItem.setOnAction(actionEvent -> {
-            logger.log("AmITea application closed!");
-            Platform.exit();
-        });
-
-        projectMenu.getItems().addAll(newProjectMenuItem,
-                loadProjectMenuItem,
-                closeProjectMenuItem,
-                exitMenuItem);
-
-        newFileMenuItem.setOnAction(actionEvent -> {
-            String fileName = JOptionPane.showInputDialog("File Name");
-            if (textFileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName, editor)) {
-                saveFileMenuItem.setDisable(false);
-                editor.setVisible(true);
-                editor.setHtmlText("");
-            } else {
-                // todo show error message
-            }
-        });
-
-        saveFileMenuItem.setOnAction(actionEvent -> textFileService.saveTextFile(projectDAO.getCurrentProject().getPath(), fileDAO.getCurrentFile().getName(), editor));
-        saveFileMenuItem.setDisable(true);
-
-        openFileMenuItem.setOnAction(actionEvent -> {
-            List<String> files = textFileService.getAllFilesOfProject(projectDAO.getCurrentProject().getName());
-
-            ListView<String> fileList = new ListView<>();
-            ObservableList<String> items = FXCollections.observableArrayList(files);
-            fileList.setItems(items);
-
-            StackPane temporaryWindow = new StackPane();
-            temporaryWindow.getChildren().addAll(fileList);
-            Scene tempScene = new Scene(temporaryWindow, 200, 320);
-            Stage tempWindow = new Stage();
-            tempWindow.setTitle(projectDAO.getCurrentProject().getName());
-            tempWindow.setScene(tempScene);
-            tempWindow.setX(primaryStage.getX() + 12);
-            tempWindow.setY(primaryStage.getY() + 28);
-            fileList.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
-                    String fullFileName = fileList.getSelectionModel().getSelectedItem();
-                    String fileName = fullFileName.split("\\.")[0];
-                    textFileService.openTextFile(fileName, projectDAO.getCurrentProject().getPath(), editor);
-                    saveFileMenuItem.setDisable(false);
-                    editor.setVisible(true);
-                    tempWindow.close();
-                }
-            });
-            tempWindow.show();
-        });
-        fileMenu.getItems().addAll(newFileMenuItem, saveFileMenuItem, openFileMenuItem);
-        fileMenu.setDisable(true);
-        MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(projectMenu, fileMenu, settingsMenu);
-        menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+        editorMenuController.initializeMenuBar();
+        MenuBar menuBar = editorMenuController.getMenuBar();
 
         Node node = editor.lookup(".top-toolbar");
         if (node instanceof ToolBar) {
