@@ -97,10 +97,10 @@ public class AmITea extends Application {
 
         graphicsContext = paintController.getCanvas().getGraphicsContext2D();
         textFileService.setGraphicsContext(graphicsContext);
-        editorMenuController.setGraphicsContext(graphicsContext);
 
         wrapper = new StackPane();
         editorController.setWrapper(wrapper);
+        editorMenuController.setPaintController(paintController);
 
 
 
@@ -119,8 +119,6 @@ public class AmITea extends Application {
         VBox wrapperVbox = new VBox();
         Scene wrapperScene = new Scene(wrapperVbox);
         ((VBox) wrapperScene.getRoot()).getChildren().addAll(editorMenuController.getMenuBar(), wrapper);
-
-//        editorController.showDrawSceneToolBars(false);
 
         primaryStage.setScene(wrapperScene);
         primaryStage.show();

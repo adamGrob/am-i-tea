@@ -6,12 +6,11 @@ import com.codecool.am_i_tea.service.LoggerService;
 import com.codecool.am_i_tea.service.ProjectService;
 import com.codecool.am_i_tea.service.PropertyUtil;
 import com.codecool.am_i_tea.service.TextFileService;
-import com.codecool.paintFx.model.ShapeList;
+import com.codecool.paintFx.controller.PaintController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -33,11 +32,10 @@ public class EditorMenuController {
     private TextFileService fileService;
     private ProjectDAO projectDAO;
     private TextFileDAO fileDAO;
+    private PaintController paintController;
 
     private Stage stage;
     private HTMLEditor editor;
-
-    private GraphicsContext graphicsContext;
 
     private MenuBar menuBar;
 
@@ -55,12 +53,12 @@ public class EditorMenuController {
         this.editor = editor;
     }
 
-    public void setGraphicsContext(GraphicsContext graphicsContext) {
-        this.graphicsContext = graphicsContext;
-    }
-
     public MenuBar getMenuBar() {
         return menuBar;
+    }
+
+    public void setPaintController(PaintController paintController) {
+        this.paintController = paintController;
     }
 
     public void initializeMenuBar() {
@@ -154,8 +152,8 @@ public class EditorMenuController {
         // todo save current file (files?) before closing them
         logger.log("Project closed!");
 
-        ShapeList.getInstance().emptyShapeList();
-        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+        paintController.clearShapeList();
+        paintController.clearCanvas();
 
         fileDAO.setCurrentFile(null);
         projectDAO.setCurrentProject(null);
