@@ -71,6 +71,10 @@ public class PaintController {
     @FXML
     ToolBar bottomToolbar;
 
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
     public void initialize() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         ShapeList.getInstance().setShapeList(drawnShapeList);

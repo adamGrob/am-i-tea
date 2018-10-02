@@ -44,7 +44,7 @@ public class EditorMenuController {
     public EditorMenuController(LoggerService logger, PropertyUtil propertyUtil,
                                 ProjectService projectService, TextFileService fileService,
                                 ProjectDAO projectDAO, TextFileDAO fileDAO, Stage stage,
-                                HTMLEditor editor, GraphicsContext graphicsContext) {
+                                HTMLEditor editor) {
         this.logger = logger;
         this.propertyUtil = propertyUtil;
         this.projectService = projectService;
@@ -53,6 +53,9 @@ public class EditorMenuController {
         this.fileDAO = fileDAO;
         this.stage = stage;
         this.editor = editor;
+    }
+
+    public void setGraphicsContext(GraphicsContext graphicsContext) {
         this.graphicsContext = graphicsContext;
     }
 

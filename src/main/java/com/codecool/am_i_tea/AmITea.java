@@ -8,6 +8,7 @@ import com.codecool.am_i_tea.service.LoggerService;
 import com.codecool.am_i_tea.service.ProjectService;
 import com.codecool.am_i_tea.service.PropertyUtil;
 import com.codecool.am_i_tea.service.TextFileService;
+import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.service.PaintService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +41,7 @@ public class AmITea extends Application {
     private LoggerService logger;
     private EditorMenuController editorMenuController;
     private EditorController editorController;
+    private PaintController paintController;
     private JavaApplication javaApp;
 
     public static void main(String[] args) {
@@ -70,32 +72,46 @@ public class AmITea extends Application {
         javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
 
         editorMenuController = new EditorMenuController(logger, propertyUtil, projectService,
-                textFileService, projectDAO, fileDAO, primaryStage, editor, graphicsContext);
+                textFileService, projectDAO, fileDAO, primaryStage, editor);
         editorMenuController.initializeMenuBar();
 
-        editorController = new EditorController(editor, wrapper, javaApp);
+        editorController = new EditorController(editor, javaApp);
         editorController.addButtonsToEditorToolbar();
         editorController.setJavaApplicationConnection();
 
         primaryStage.setTitle("Am-I-Tea text editor");
         editor.setVisible(false);
 
+
         logger.log("AmITea application started!");
 
 
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("paint.fxml"));
         try {
-            drawScene = new Scene(FXMLLoader.load(getClass().getClassLoader().getResource("paint.fxml")));
+            drawScene = new Scene(fxmlLoader.load());
+            paintController = fxmlLoader.getController();
         } catch (IOException e) {
             logger.log(e.getMessage());
             e.printStackTrace();
         }
+
+        graphicsContext = paintController.getCanvas().getGraphicsContext2D();
+        textFileService.setGraphicsContext(graphicsContext);
+        editorMenuController.setGraphicsContext(graphicsContext);
+
+        wrapper = new StackPane();
+        editorController.setWrapper(wrapper);
+
+
+
+
+
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
 
 
         VBox editorVbox = new VBox();
         Scene editorScene = new Scene(editorVbox, 640, 480);
         ((VBox) editorScene.getRoot()).getChildren().addAll(editor);
-        wrapper = new StackPane();
         wrapper.getChildren().add(editorScene.getRoot());
         wrapper.getChildren().add(drawScene.getRoot());
         wrapper.getChildren().get(1).setMouseTransparent(true);
@@ -104,10 +120,7 @@ public class AmITea extends Application {
         Scene wrapperScene = new Scene(wrapperVbox);
         ((VBox) wrapperScene.getRoot()).getChildren().addAll(editorMenuController.getMenuBar(), wrapper);
 
-        editorController.showDrawSceneToolBars(false);
-
-        graphicsContext = ((Canvas) drawScene.getRoot().getChildrenUnmodifiable().get(1)).getGraphicsContext2D();
-        textFileService.setGraphicsContext(graphicsContext);
+//        editorController.showDrawSceneToolBars(false);
 
         primaryStage.setScene(wrapperScene);
         primaryStage.show();

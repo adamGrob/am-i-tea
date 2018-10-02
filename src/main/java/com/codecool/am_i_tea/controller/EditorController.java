@@ -22,11 +22,14 @@ public class EditorController {
 
     private WebView webView;
 
-    public EditorController(HTMLEditor editor, StackPane wrapper, JavaApplication javaApp) {
+    public EditorController(HTMLEditor editor, JavaApplication javaApp) {
         this.editor = editor;
-        this.wrapper = wrapper;
         this.javaApp = javaApp;
         this.webView = (WebView) editor.lookup("WebView");
+    }
+
+    public void setWrapper(StackPane wrapper) {
+        this.wrapper = wrapper;
     }
 
     public void setJavaApplicationConnection() {
