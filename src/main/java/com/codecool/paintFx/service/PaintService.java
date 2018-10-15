@@ -133,7 +133,7 @@ public class PaintService {
         }
     }
 
-    public void loadImage(String fileName) {
+    public void loadImage(String fileName, List<MyShape> storedShapeList) {
 
         File file = new File(projectDAO.getCurrentProject().getPath() +
                 File.separator + fileName + "_image.txt");
@@ -193,7 +193,6 @@ public class PaintService {
                 System.out.println(ex.getMessage());
             }
 
-            List<MyShape> storedShapeList = paintController.getDrawnShapeList();
             for (StoredLine line : storedLineList) {
                 Color color = new Color(line.getRed(), line.getGreen(), line.getBlue(), 1.0);
                 storedShapeList.add(new StraightLine(line.getStartX(), line.getStartY(),

@@ -24,6 +24,7 @@ public class TextFileService {
     private PropertyUtil propertyUtil;
     private LoggerService logger;
     private PaintService paintService;
+    private PaintController paintController;
 
     public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil,
                            LoggerService loggerService, PaintService paintService) {
@@ -97,7 +98,7 @@ public class TextFileService {
         if (file.exists()) {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
-            paintService.loadImage(fileName);
+            paintService.loadImage(fileName, paintController.getDrawnShapeList());
             logger.log(file.getName() + " file opened successfully!");
         }
         WebView webView = (WebView) editor.lookup("WebView");
