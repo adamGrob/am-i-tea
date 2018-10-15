@@ -2,6 +2,7 @@ package com.codecool.am_i_tea.service;
 
 import com.codecool.am_i_tea.model.TextFile;
 import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.model.MyShape;
 import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;
@@ -9,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.web.HTMLEditor;
+import javafx.scene.web.WebView;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,7 +20,6 @@ import java.util.List;
 public class TextFileService {
 
     private TextFileDAO fileDAO;
-    private GraphicsContext graphicsContext;
     private PropertyUtil propertyUtil;
     private LoggerService logger;
     private PaintService paintService;
@@ -31,18 +32,14 @@ public class TextFileService {
         this.paintService = paintService;
     }
 
-    public void setGraphicsContext(GraphicsContext graphicsContext) {
-        this.graphicsContext = graphicsContext;
-    }
-
-    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor) {
+    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor, PaintController paintController) {
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
             if (file.createNewFile()) {
                 logger.log(file.getName() + " created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
                 ShapeList.getInstance().emptyShapeList();
-                graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+                paintController.getCanvas().getGraphicsContext2D().clearRect(0, 0, editor.getWidth(), editor.getHeight());
                 return paintService.createNewImageFile();
             } else {
                 logger.log(file.getName() + " already exists. Choose a unique name!");
@@ -84,22 +81,23 @@ public class TextFileService {
         }
     }
 
-    public void openTextFile(String fileName, String projectPath, HTMLEditor editor) {
+    public void openTextFile(String fileName, String projectPath, WebView webView, PaintController paintController) {
 
         File file = new File(projectPath + File.separator + fileName + ".html");
 
-        ShapeList.getInstance().emptyShapeList();
-        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+        paintController.getDrawnShapeList().clear();
+        paintController.getCanvas().getGraphicsContext2D().clearRect(0, 0,
+                paintController.getCanvas().getWidth(), paintController.getCanvas().getHeight());
 
         String content = "";
         if (file.exists()) {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
-            paintService.loadImage();
+            paintService.loadImage(fileName, paintController.getDrawnShapeList());
             logger.log(file.getName() + " file opened successfully!");
         }
-        editor.setHtmlText(content);
-        redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
+        webView.getEngine().loadContent(content);
+        paintController.redraw(paintController.getDrawnShapeList());
     }
 
     private void saveFile(String content, File file) {
@@ -132,19 +130,5 @@ public class TextFileService {
         }
 
         return content;
-    }
-
-    private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext, HTMLEditor editor) {
-        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
-        for (MyShape myShape : drawnShapeList) {
-            setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
-            myShape.display(graphicsContext);
-        }
-    }
-
-    private void setupBrush(GraphicsContext graphicsContext, double size, Paint value) {
-        graphicsContext.setStroke(value);
-        graphicsContext.setLineWidth(size);
-        graphicsContext.setLineCap(StrokeLineCap.ROUND);
     }
 }

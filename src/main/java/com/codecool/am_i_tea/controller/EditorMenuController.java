@@ -19,6 +19,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.HTMLEditor;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import javax.swing.*;
@@ -125,7 +126,8 @@ public class EditorMenuController {
         if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
             String fullFileName = fileList.getSelectionModel().getSelectedItem();
             String fileName = fullFileName.split("\\.")[0];
-            fileService.openTextFile(fileName, projectDAO.getCurrentProject().getPath(), editor);
+            WebView webView = (WebView) editor.lookup("WebView");
+            fileService.openTextFile(fileName, projectDAO.getCurrentProject().getPath(), webView, paintController);
             saveFileMenuItem.setDisable(false);
             editor.setVisible(true);
             tempWindow.close();
@@ -134,7 +136,7 @@ public class EditorMenuController {
 
     private void newFileAction(MenuItem saveFileMenuItem) {
         String fileName = JOptionPane.showInputDialog("File Name");
-        if (fileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName, editor)) {
+        if (fileService.createNewTextFile(projectDAO.getCurrentProject().getPath(), fileName, editor, paintController)) {
             saveFileMenuItem.setDisable(false);
             editor.setVisible(true);
             editor.setHtmlText("");

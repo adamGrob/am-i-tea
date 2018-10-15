@@ -37,7 +37,6 @@ public class AmITea extends Application {
     private PropertyUtil propertyUtil;
     private ProjectDAO projectDAO;
     private TextFileDAO fileDAO;
-    private GraphicsContext graphicsContext;
     private LoggerService logger;
     private PaintService paintService;
     private EditorMenuController editorMenuController;
@@ -68,7 +67,7 @@ public class AmITea extends Application {
         projectService = new ProjectService(projectDAO, propertyUtil, logger);
 
         HTMLEditor editor = new HTMLEditor();
-        javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
+        javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor, logger);
 
         editorMenuController = new EditorMenuController(logger, propertyUtil, projectService,
                 textFileService, projectDAO, fileDAO, primaryStage, editor);
@@ -91,9 +90,6 @@ public class AmITea extends Application {
             logger.log(e.getMessage());
             e.printStackTrace();
         }
-
-        graphicsContext = paintController.getCanvas().getGraphicsContext2D();
-        textFileService.setGraphicsContext(graphicsContext);
 
         wrapper = new StackPane();
         editorController.setWrapper(wrapper);

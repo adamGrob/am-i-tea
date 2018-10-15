@@ -143,7 +143,7 @@ public class PaintController {
             if (redoStack.size() != 0) {
                 MyShape shapeToRedo = redoStack.pop();
                 drawnShapeList.add(shapeToRedo);
-                redraw(drawnShapeList, graphicsContext);
+                redraw(drawnShapeList);
             }
         });
     }
@@ -154,7 +154,7 @@ public class PaintController {
                 MyShape shapeToRemove = drawnShapeList.get(drawnShapeList.size() - 1);
                 redoStack.push(shapeToRemove);
                 drawnShapeList.remove(shapeToRemove);
-                redraw(drawnShapeList, graphicsContext);
+                redraw(drawnShapeList);
             }
         });
     }
@@ -236,14 +236,14 @@ public class PaintController {
                 currX = endPosition.x;
                 currY = endPosition.y;
             }
-            redraw(drawnShapeList, graphicsContext);
+            redraw(drawnShapeList);
             graphicsContext.strokeLine(startX, startY, currX, currY);
         } else if (shapeEnum.equals(ShapeEnum.RECTANGLE)) {
-            redraw(drawnShapeList, graphicsContext);
+            redraw(drawnShapeList);
             double[] startCoords = adjustCoordinates(startX, startY, currX, currY);
             graphicsContext.strokeRect(startCoords[0], startCoords[1], Math.abs(currX - startX), Math.abs(currY - startY));
         } else if (shapeEnum.equals(ShapeEnum.OVAL)) {
-            redraw(drawnShapeList, graphicsContext);
+            redraw(drawnShapeList);
             double[] startCoords = adjustCoordinates(startX, startY, currX, currY);
             graphicsContext.strokeOval(startCoords[0], startCoords[1], Math.abs(currX - startX), Math.abs(currY - startY));
         }
@@ -264,13 +264,13 @@ public class PaintController {
         return startCoords;
     }
 
-    private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext) {
+    public void redraw(List<MyShape> drawnShapeList) {
         clearCanvas();
         for (MyShape myShape : drawnShapeList) {
-            setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
-            myShape.display(graphicsContext);
+            setupBrush(canvas.getGraphicsContext2D(), myShape.getBrushSize(), myShape.getColor());
+            myShape.display(canvas.getGraphicsContext2D());
         }
-        setupBrush(graphicsContext, Double.parseDouble(brushSize.getText()), colorPicker.getValue());
+        setupBrush(canvas.getGraphicsContext2D(), Double.parseDouble(brushSize.getText()), colorPicker.getValue());
     }
 
     private void setupBrush(GraphicsContext graphicsContext, double size, Paint value) {
