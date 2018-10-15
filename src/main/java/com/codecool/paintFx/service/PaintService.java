@@ -1,15 +1,14 @@
 package com.codecool.paintFx.service;
 
-import com.codecool.am_i_tea.AmITea;
-import com.codecool.am_i_tea.ProjectDAO;
-import com.codecool.am_i_tea.TextFileDAO;
+import com.codecool.am_i_tea.dao.ProjectDAO;
+import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.am_i_tea.service.LoggerService;
+import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.model.*;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -21,35 +20,51 @@ import org.codehaus.jackson.type.TypeReference;
 
 public class PaintService {
 
-    private static ProjectDAO projectDAO;
-    private static TextFileDAO fileDAO;
+    private ProjectDAO projectDAO;
+    private TextFileDAO fileDAO;
+    private LoggerService logger;
+    private PaintController paintController;
 
-    public static void setProjectDAO(ProjectDAO projectDAOStuff) {
+    public PaintService(ProjectDAO projectDAO, TextFileDAO fileDAO, LoggerService logger) {
+        this.projectDAO = projectDAO;
+        this.fileDAO = fileDAO;
+        this.logger = logger;
+    }
+
+    public void setPaintController(PaintController paintController) {
+        this.paintController = paintController;
+    }
+
+    public void setLogger(LoggerService loggerService) {
+        logger = loggerService;
+    }
+
+    public void setProjectDAO(ProjectDAO projectDAOStuff) {
         projectDAO = projectDAOStuff;
     }
 
-    public static void setfileDAO(TextFileDAO fileDAOStuff) {
+    public void setfileDAO(TextFileDAO fileDAOStuff) {
         fileDAO = fileDAOStuff;
     }
 
-    public static boolean createNewImageFile() {
+    public boolean createNewImageFile() {
         File file = new File(projectDAO.getCurrentProject().getPath() +
                 File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
         try {
             if (file.createNewFile()) {
-                System.out.println("Image file created successfully!");
+                logger.log(file.getName() + " image file created successfully!");
                 return true;
             } else {
-                System.out.println("Image file already exists. Choose a unique name!");
+                logger.log(file.getName() + " image file already exists. Choose a unique name!");
                 return false;
             }
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            logger.log(ex.getMessage());
             return false;
         }
     }
 
-    public static void saveImage() {
+    public void saveImage() {
 
         String path = projectDAO.getCurrentProject().getPath() + File.separator +
                 fileDAO.getCurrentFile().getName() + "_image.txt";
@@ -60,9 +75,9 @@ public class PaintService {
         List<StoredRectangle> storedRectangleList = new ArrayList<>();
         List<StoredCircle> storedCircleList = new ArrayList<>();
 
-        for (MyShape myShape: ShapeList.getInstance().getShapeList()) {
+        for (MyShape myShape : paintController.getDrawnShapeList()) {
             if (myShape instanceof StraightLine) {
-                storedLineList.add(new StoredLine( myShape.getStartX(),
+                storedLineList.add(new StoredLine(myShape.getStartX(),
                         myShape.getStartY(),
                         ((StraightLine) myShape).getEndX(),
                         ((StraightLine) myShape).getEndY(),
@@ -74,7 +89,7 @@ public class PaintService {
                 StoredCustomLine storedCustomLine = new StoredCustomLine();
                 List<StoredLine> placeholder = new ArrayList<>();
                 storedCustomLine.setStoredLineList(placeholder);
-                for (StraightLine linePart: ((CustomLine)myShape).getStraightLineList()) {
+                for (StraightLine linePart : ((CustomLine) myShape).getStraightLineList()) {
                     storedCustomLine.getStoredLineList().add(
                             new StoredLine(linePart.getStartX(),
                                     linePart.getStartY(),
@@ -112,16 +127,16 @@ public class PaintService {
 
         if (file.exists()) {
             saveImageFile(fullJson, file);
-            System.out.println("Image file saved successfully!");
+            logger.log(file.getName() + " image file saved successfully!");
         } else {
-            System.out.println("The image file doesn't exist!");
+            logger.log("The " + file.getName() + " image file doesn't exist!");
         }
     }
 
-    public static void loadImage(){
+    public void loadImage(String fileName, List<MyShape> storedShapeList) {
 
         File file = new File(projectDAO.getCurrentProject().getPath() +
-                File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
+                File.separator + fileName + "_image.txt");
 
         if (file.exists()) {
             String jsonImage = openImageFile(file);
@@ -138,11 +153,11 @@ public class PaintService {
                 storedLineList = mapper.readValue(straightLineList.toString(), new TypeReference<List<StoredLine>>() {
                 });
             } catch (IOException ex) {
-                System.out.println(ex.getMessage());
+                logger.log(ex.getMessage());
             }
 
             JsonArray customLineList = new Gson().fromJson(listOfShapeTypes.get(1).toString(), JsonArray.class);
-            for (JsonElement customLineElement: customLineList) {
+            for (JsonElement customLineElement : customLineList) {
                 StoredCustomLine currentStoredCustomLine = new StoredCustomLine();
                 List<StoredLine> storedCustomLinePartList = new ArrayList<>();
 
@@ -150,7 +165,8 @@ public class PaintService {
                 JsonArray customLinePartList = new Gson().fromJson(customLine.get("storedLineList"), JsonArray.class);
                 try {
                     ObjectMapper mapper = new ObjectMapper();
-                    storedCustomLinePartList = mapper.readValue(customLinePartList.toString(), new TypeReference<List<StoredLine>>() {});
+                    storedCustomLinePartList = mapper.readValue(customLinePartList.toString(), new TypeReference<List<StoredLine>>() {
+                    });
                 } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
@@ -171,21 +187,20 @@ public class PaintService {
             JsonArray circleList = new Gson().fromJson(listOfShapeTypes.get(3), JsonArray.class);
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                 storedCircleList = mapper.readValue(circleList.toString(), new TypeReference<List<StoredCircle>>() {
+                storedCircleList = mapper.readValue(circleList.toString(), new TypeReference<List<StoredCircle>>() {
                 });
             } catch (IOException ex) {
                 System.out.println(ex.getMessage());
             }
 
-            List<MyShape> storedShapeList = ShapeList.getInstance().getShapeList();
-            for (StoredLine line: storedLineList) {
+            for (StoredLine line : storedLineList) {
                 Color color = new Color(line.getRed(), line.getGreen(), line.getBlue(), 1.0);
                 storedShapeList.add(new StraightLine(line.getStartX(), line.getStartY(),
                         line.getEndX(), line.getEndY(), color, line.getBrushSize()));
             }
-            for (StoredCustomLine line: storedCustomLineList) {
+            for (StoredCustomLine line : storedCustomLineList) {
                 List<StraightLine> storedCustomLinePartList = new ArrayList<>();
-                for (StoredLine linePart: line.getStoredLineList()) {
+                for (StoredLine linePart : line.getStoredLineList()) {
                     Color color = new Color(linePart.getRed(), linePart.getGreen(), linePart.getBlue(), 1.0);
                     storedCustomLinePartList.add(new StraightLine(linePart.getStartX(),
                             linePart.getStartY(), linePart.getEndX(), linePart.getEndY(),
@@ -193,36 +208,35 @@ public class PaintService {
                 }
                 storedShapeList.add(new CustomLine(storedCustomLinePartList));
             }
-            for (StoredRectangle rekt: storedRectangleList) {
+            for (StoredRectangle rekt : storedRectangleList) {
                 Color color = new Color(rekt.getRed(), rekt.getGreen(), rekt.getBlue(), 1.0);
                 storedShapeList.add(new MyRectangle(rekt.getStartX(), rekt.getStartY(),
                         rekt.getWidth(), rekt.getHeight(), color, rekt.getBrushSize()));
             }
-            for (StoredCircle circle: storedCircleList) {
+            for (StoredCircle circle : storedCircleList) {
                 Color color = new Color(circle.getRed(), circle.getGreen(), circle.getBlue(), 1.0);
                 storedShapeList.add(new MyOval(circle.getStartX(), circle.getStartY(),
                         circle.getWidth(), circle.getHeight(), color, circle.getBrushSize()));
             }
 
 
-
-            System.out.println("Image file opened successfully!");
+            logger.log(file.getName() + " image file opened successfully!");
         } else {
-            System.out.println("Could not open imafe file!");
+            logger.log("Could not open " + file.getName() + " image file!");
         }
 
     }
 
-    private static void saveImageFile(String content, File file) {
+    private void saveImageFile(String content, File file) {
         try (FileWriter fileWriter = new FileWriter(file)) {
 
             fileWriter.write(content);
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(ex.getMessage());
         }
     }
 
-    private static String openImageFile(File file) {
+    private String openImageFile(File file) {
 
         String content = "";
         try (FileReader fileReader = new FileReader(file)) {
@@ -239,7 +253,7 @@ public class PaintService {
             bufferedReader.close();
             content = contentBuilder.toString();
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(ex.getMessage());
         }
 
         return content;

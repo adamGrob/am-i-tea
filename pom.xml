@@ -17,21 +17,35 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.codecool.am_i_tea.AmITea</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
-   <dependencies>
-       <dependency>
-           <groupId>com.google.code.gson</groupId>
-           <artifactId>gson</artifactId>
-           <version>2.8.5</version>
-       </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
+        </dependency>
 
-       <dependency>
-           <groupId>org.codehaus.jackson</groupId>
-           <artifactId>jackson-mapper-asl</artifactId>
-           <version>1.9.13</version>
-       </dependency>
-   </dependencies>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+    </dependencies>
 
 </project>

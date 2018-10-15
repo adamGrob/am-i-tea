@@ -1,5 +1,8 @@
-package com.codecool.am_i_tea;
+package com.codecool.am_i_tea.service;
 
+import com.codecool.am_i_tea.model.TextFile;
+import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.model.MyShape;
 import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;
@@ -7,57 +10,58 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.web.HTMLEditor;
+import javafx.scene.web.WebView;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TextFileService {
 
     private TextFileDAO fileDAO;
-    private GraphicsContext graphicsContext;
+    private PropertyUtil propertyUtil;
+    private LoggerService logger;
+    private PaintService paintService;
 
-    public TextFileService(TextFileDAO fileDAO) {
+    public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil,
+                           LoggerService loggerService, PaintService paintService) {
         this.fileDAO = fileDAO;
+        this.propertyUtil = propertyUtil;
+        this.logger = loggerService;
+        this.paintService = paintService;
     }
 
-    public void setGraphicsContext(GraphicsContext graphicsContext) {
-        this.graphicsContext = graphicsContext;
-    }
-
-    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor){
+    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor, PaintController paintController) {
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
-            if (file.createNewFile()){
-                System.out.println("File created successfully!");
+            if (file.createNewFile()) {
+                logger.log(file.getName() + " created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
                 ShapeList.getInstance().emptyShapeList();
-                graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
-                return PaintService.createNewImageFile();
+                paintController.getCanvas().getGraphicsContext2D().clearRect(0, 0, editor.getWidth(), editor.getHeight());
+                return paintService.createNewImageFile();
             } else {
-                System.out.println("File already exists. Choose a unique name!");
+                logger.log(file.getName() + " already exists. Choose a unique name!");
                 return false;
             }
-        } catch (IOException ex){
-            System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            logger.log(ex.getMessage());
             return false;
         }
     }
 
     public List<String> getAllFilesOfProject(String projectName) {
-        String homeFolder = System.getProperty("user.home");
-        String projectPath = homeFolder + File.separator + "AmITea" + File.separator + projectName;
+        String homeFolder = propertyUtil.getLocationProperty();
+        String projectPath = homeFolder + File.separator + projectName;
         File file = new File(projectPath);
 
         String[] files = file.list((current, name) -> name.endsWith(".html"));
         if (files != null) {
-            System.out.println("Found the list of all files in the project!");
+            logger.log("Found the list of all files in the " + projectName + " project!");
             return new ArrayList<>(Arrays.asList(files));
         } else {
-            System.out.println("Couldn't find the list of files in the project!");
+            logger.log("Couldn't find the list of files in the " + projectName + " project!");
             return null;
         }
     }
@@ -70,29 +74,30 @@ public class TextFileService {
 
         if (file.exists()) {
             saveFile(textToSave, file);
-            PaintService.saveImage();
-            System.out.println("File saved successfully!");
+            paintService.saveImage();
+            logger.log(file.getName() + " saved successfully!");
         } else {
-            System.out.println("The file doesn't exist!");
+            logger.log("The " + file.getName() + " file doesn't exist!");
         }
     }
 
-    public void openTextFile(String fileName, String projectPath, HTMLEditor editor) {
+    public void openTextFile(String fileName, String projectPath, WebView webView, PaintController paintController) {
 
         File file = new File(projectPath + File.separator + fileName + ".html");
 
-        ShapeList.getInstance().emptyShapeList();
-        graphicsContext.clearRect(0,0, editor.getWidth(), editor.getHeight());
+        paintController.getDrawnShapeList().clear();
+        paintController.getCanvas().getGraphicsContext2D().clearRect(0, 0,
+                paintController.getCanvas().getWidth(), paintController.getCanvas().getHeight());
 
         String content = "";
         if (file.exists()) {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
-            PaintService.loadImage();
-            System.out.println("File opened successfully!");
+            paintService.loadImage(fileName, paintController.getDrawnShapeList());
+            logger.log(file.getName() + " file opened successfully!");
         }
-        editor.setHtmlText(content);
-        redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
+        webView.getEngine().loadContent(content);
+        paintController.redraw(paintController.getDrawnShapeList());
     }
 
     private void saveFile(String content, File file) {
@@ -100,7 +105,7 @@ public class TextFileService {
 
             fileWriter.write(content);
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(ex.getMessage());
         }
     }
 
@@ -121,23 +126,9 @@ public class TextFileService {
             bufferedReader.close();
             content = contentBuilder.toString();
         } catch (IOException ex) {
-            Logger.getLogger(AmITea.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(ex.getMessage());
         }
 
         return content;
-    }
-
-    private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext, HTMLEditor editor) {
-        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
-        for (MyShape myShape : drawnShapeList) {
-            setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
-            myShape.display(graphicsContext);
-        }
-    }
-
-    private void setupBrush(GraphicsContext graphicsContext, double size, Paint value) {
-        graphicsContext.setStroke(value);
-        graphicsContext.setLineWidth(size);
-        graphicsContext.setLineCap(StrokeLineCap.ROUND);
     }
 }

@@ -1,4 +1,4 @@
-package com.codecool.am_i_tea;
+package com.codecool.am_i_tea.model;
 
 public class Project {
 

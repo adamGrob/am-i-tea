@@ -16,10 +16,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 
+<?import javafx.scene.control.Separator?>
 <BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.codecool.paintFx.controller.PaintController">
     <top>
         <VBox>
             <ToolBar fx:id="topToolbar" visible="false">
+                <Button fx:id="textEditorButton" mnemonicParsing="false" text="Texteditor" />
+                <Separator fx:id="textEditorButtonSeparator" />
                     <HBox alignment="CENTER" spacing="5">
                         <TextField fx:id="brushSize" text="11" />
                         <ColorPicker fx:id="colorPicker">
@@ -35,7 +38,6 @@
                             Undo
                         </Button>
             <Button fx:id="redo" mnemonicParsing="false" text="Redo" />
-            <Button fx:id="textEditorButton" mnemonicParsing="false" text="Texteditor" />
             </ToolBar>
             <ToolBar fx:id="bottomToolbar" visible="false">
                 <HBox alignment="CENTER" spacing="5">
