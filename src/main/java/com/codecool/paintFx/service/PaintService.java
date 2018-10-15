@@ -133,10 +133,10 @@ public class PaintService {
         }
     }
 
-    public void loadImage() {
+    public void loadImage(String fileName) {
 
         File file = new File(projectDAO.getCurrentProject().getPath() +
-                File.separator + fileDAO.getCurrentFile().getName() + "_image.txt");
+                File.separator + fileName + "_image.txt");
 
         if (file.exists()) {
             String jsonImage = openImageFile(file);

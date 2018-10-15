@@ -2,6 +2,7 @@ package com.codecool.am_i_tea.service;
 
 import com.codecool.am_i_tea.model.TextFile;
 import com.codecool.am_i_tea.dao.TextFileDAO;
+import com.codecool.paintFx.controller.PaintController;
 import com.codecool.paintFx.model.MyShape;
 import com.codecool.paintFx.model.ShapeList;
 import com.codecool.paintFx.service.PaintService;
@@ -9,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.web.HTMLEditor;
+import javafx.scene.web.WebView;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -95,10 +97,11 @@ public class TextFileService {
         if (file.exists()) {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
-            paintService.loadImage();
+            paintService.loadImage(fileName);
             logger.log(file.getName() + " file opened successfully!");
         }
-        editor.setHtmlText(content);
+        WebView webView = (WebView) editor.lookup("WebView");
+        webView.getEngine().loadContent(content);
         redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
     }
 
