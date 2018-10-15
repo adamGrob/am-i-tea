@@ -21,11 +21,14 @@ public class TextFileService {
     private GraphicsContext graphicsContext;
     private PropertyUtil propertyUtil;
     private LoggerService logger;
+    private PaintService paintService;
 
-    public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil, LoggerService loggerService) {
+    public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil,
+                           LoggerService loggerService, PaintService paintService) {
         this.fileDAO = fileDAO;
         this.propertyUtil = propertyUtil;
         this.logger = loggerService;
+        this.paintService = paintService;
     }
 
     public void setGraphicsContext(GraphicsContext graphicsContext) {
@@ -40,7 +43,7 @@ public class TextFileService {
                 fileDAO.setCurrentFile(new TextFile(fileName));
                 ShapeList.getInstance().emptyShapeList();
                 graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
-                return PaintService.createNewImageFile();
+                return paintService.createNewImageFile();
             } else {
                 logger.log(file.getName() + " already exists. Choose a unique name!");
                 return false;
@@ -74,7 +77,7 @@ public class TextFileService {
 
         if (file.exists()) {
             saveFile(textToSave, file);
-            PaintService.saveImage();
+            paintService.saveImage();
             logger.log(file.getName() + " saved successfully!");
         } else {
             logger.log("The " + file.getName() + " file doesn't exist!");
@@ -92,7 +95,7 @@ public class TextFileService {
         if (file.exists()) {
             content = openFile(file);
             fileDAO.setCurrentFile(new TextFile(fileName));
-            PaintService.loadImage();
+            paintService.loadImage();
             logger.log(file.getName() + " file opened successfully!");
         }
         editor.setHtmlText(content);

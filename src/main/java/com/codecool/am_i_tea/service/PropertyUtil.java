@@ -1,5 +1,7 @@
 package com.codecool.am_i_tea.service;
 
+import com.codecool.am_i_tea.ApplicationProperties;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -10,18 +12,18 @@ public class PropertyUtil {
 
     private Properties properties;
 
-    private String path;
     private String fileName;
     private LoggerService logger;
+    private ApplicationProperties applicationProperties;
 
-    public PropertyUtil(Properties properties, LoggerService loggerService) {
+    public PropertyUtil(Properties properties, LoggerService loggerService,
+                        ApplicationProperties applicationProperties) {
         this.properties = properties;
         this.logger = loggerService;
+        this.applicationProperties = applicationProperties;
     }
 
     public void initializeProperties() {
-        path = logger.getPath();
-
         switch (System.getProperty("os.name")) {
             case "Linux":
                 fileName = "config.properties";
@@ -49,7 +51,8 @@ public class PropertyUtil {
 
     private void readConfigProperties() {
         try {
-            FileReader reader = new FileReader(path + File.separator + fileName);
+            FileReader reader = new FileReader(applicationProperties.getConfigFolderPath()
+                    + File.separator + fileName);
             properties.load(reader);
             logger.log("Properies loaded successfully!");
         } catch (IOException ex) {
@@ -60,7 +63,8 @@ public class PropertyUtil {
 
     private void writeConfigProperties() {
         try {
-            FileWriter writer = new FileWriter(path + File.separator + fileName);
+            FileWriter writer = new FileWriter(applicationProperties.getConfigFolderPath()
+                    + File.separator + fileName);
             properties.store(writer, null);
         } catch (IOException ex) {
             logger.log(ex.getMessage());
@@ -68,8 +72,9 @@ public class PropertyUtil {
     }
 
     private void createConfigFile() {
-        File configFolder = new File(path);
-        File configFile = new File(path + File.separator + fileName);
+        File configFolder = new File(applicationProperties.getConfigFolderPath());
+        File configFile = new File(applicationProperties.getConfigFolderPath()
+                + File.separator + fileName);
         if (!configFolder.exists()) {
             if (configFolder.mkdirs()) {
                 logger.log("Config directory created!");

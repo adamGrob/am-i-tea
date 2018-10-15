@@ -9,9 +9,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -63,13 +63,30 @@ public class PaintController {
     @FXML
     Button textEditorButton;
 
-    @FXML ToggleGroup toggleGroup1;
+    @FXML
+    ToggleGroup toggleGroup1;
 
     @FXML
     ToolBar topToolbar;
 
     @FXML
     ToolBar bottomToolbar;
+
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public List<MyShape> getDrawnShapeList() {
+        return drawnShapeList;
+    }
+
+    public ToolBar getTopToolbar() {
+        return topToolbar;
+    }
+
+    public ToolBar getBottomToolbar() {
+        return bottomToolbar;
+    }
 
     public void initialize() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
@@ -91,23 +108,18 @@ public class PaintController {
             canvas.setWidth(borderPane.getWidth() - 30);
         });
         borderPane.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
-            canvas.setHeight(borderPane.getHeight()-90);
+            canvas.setHeight(borderPane.getHeight() - 90);
         });
     }
 
     private void handleTextEditorButton() {
         textEditorButton.setOnAction(actionEvent -> {
-            StackPane myStackPane = (StackPane)canvas.getParent().getParent();
+            StackPane myStackPane = (StackPane) canvas.getParent().getParent();
             Node drawNode = myStackPane.getChildren().get(1);
             topToolbar.setVisible(false);
             bottomToolbar.setVisible(false);
             drawNode.setMouseTransparent(true);
-            VBox editorVbox = (VBox) myStackPane.getChildren().get(0);
-            Node node = editorVbox.lookup(".top-toolbar");
-            Node node2 = editorVbox.lookup(".bottom-toolbar");
-            node.setVisible(true);
-            node2.setVisible(true);
-            });
+        });
     }
 
     private void handleMousePressed() {
@@ -228,15 +240,32 @@ public class PaintController {
             graphicsContext.strokeLine(startX, startY, currX, currY);
         } else if (shapeEnum.equals(ShapeEnum.RECTANGLE)) {
             redraw(drawnShapeList, graphicsContext);
-            graphicsContext.strokeRect(startX, startY, Math.abs(currX - startX), Math.abs(currY - startY));
+            double[] startCoords = adjustCoordinates(startX, startY, currX, currY);
+            graphicsContext.strokeRect(startCoords[0], startCoords[1], Math.abs(currX - startX), Math.abs(currY - startY));
         } else if (shapeEnum.equals(ShapeEnum.OVAL)) {
             redraw(drawnShapeList, graphicsContext);
-            graphicsContext.strokeOval(startX, startY, Math.abs(currX - startX), Math.abs(currY - startY));
+            double[] startCoords = adjustCoordinates(startX, startY, currX, currY);
+            graphicsContext.strokeOval(startCoords[0], startCoords[1], Math.abs(currX - startX), Math.abs(currY - startY));
         }
     }
 
+    private double[] adjustCoordinates(double startX, double startY, double currX, double currY) {
+        double[] startCoords = new double[2];
+        if (currX < startX) {
+            startCoords[0] = currX;
+        } else {
+            startCoords[0] = startX;
+        }
+        if (currY < startY) {
+            startCoords[1] = currY;
+        } else {
+            startCoords[1] = startY;
+        }
+        return startCoords;
+    }
+
     private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext) {
-        graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        clearCanvas();
         for (MyShape myShape : drawnShapeList) {
             setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
             myShape.display(graphicsContext);
@@ -248,5 +277,13 @@ public class PaintController {
         graphicsContext.setStroke(value);
         graphicsContext.setLineWidth(size);
         graphicsContext.setLineCap(StrokeLineCap.ROUND);
+    }
+
+    public void clearCanvas() {
+        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+
+    public void clearShapeList() {
+        drawnShapeList.clear();
     }
 }

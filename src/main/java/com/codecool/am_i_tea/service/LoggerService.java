@@ -1,5 +1,7 @@
 package com.codecool.am_i_tea.service;
 
+import com.codecool.am_i_tea.ApplicationProperties;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -10,29 +12,14 @@ import java.util.logging.SimpleFormatter;
 
 public class LoggerService {
 
-    private String path;
     private File logFile;
+    private ApplicationProperties applicationProperties;
 
-    public LoggerService() {
+    public LoggerService(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
     }
 
     public void initializeLogger() {
-
-        String osName = System.getProperty("os.name");
-
-        if (osName.contains("Linux")) {
-            String homeFolder = System.getProperty("user.home");
-            path = homeFolder + File.separator + ".config" + File.separator + "AmITea";
-        } else if (osName.toLowerCase().contains("windows")) {
-            String programData = System.getenv("APPDATA");
-            path = programData + File.separator + "AmITea" + File.separator + "config";
-        } else{
-                System.out.println("This program is only designed to work under Windows or Linux operation systems!");
-        }
-
-        Logger amITeaLogger = Logger.getLogger("AmITeaLogger");
-        String logFilePath = path + File.separator + "logs";
-
         LocalDateTime temp = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH-mm-ss");
         String logFileName = "log_" + temp.toLocalDate().toString() + "T" + temp.toLocalTime().format(formatter) + ".txt";
@@ -42,7 +29,8 @@ public class LoggerService {
     public void log(String message) {
         Logger amITeaLogger = Logger.getLogger("AmITeaLogger");
         try {
-            FileHandler logFileHandler = new FileHandler(path + File.separator + "logs" + File.separator + logFile.getName(), true);
+            FileHandler logFileHandler = new FileHandler(applicationProperties.getConfigFolderPath()
+                    + File.separator + "logs" + File.separator + logFile.getName(), true);
             SimpleFormatter simpleFormatter = new SimpleFormatter();
             logFileHandler.setFormatter(simpleFormatter);
             amITeaLogger.addHandler(logFileHandler);
@@ -58,13 +46,11 @@ public class LoggerService {
         return Logger.getLogger("AmITeaLogger");
     }
 
-    public String getPath() {
-        return path;
-    }
-
     private void createLogFile(String fileName) {
-        File logFolder = new File(path + File.separator + "logs");
-        File logFile = new File(path + File.separator + "logs" + File.separator + fileName);
+        File logFolder = new File(applicationProperties.getConfigFolderPath()
+                + File.separator + "logs");
+        File logFile = new File(applicationProperties.getConfigFolderPath()
+                + File.separator + "logs" + File.separator + fileName);
         if (!logFolder.exists()) {
             if (logFolder.mkdirs()) {
                 System.out.println("Log directory created!");
