@@ -20,11 +20,9 @@ import java.util.List;
 public class TextFileService {
 
     private TextFileDAO fileDAO;
-    private GraphicsContext graphicsContext;
     private PropertyUtil propertyUtil;
     private LoggerService logger;
     private PaintService paintService;
-    private PaintController paintController;
 
     public TextFileService(TextFileDAO fileDAO, PropertyUtil propertyUtil,
                            LoggerService loggerService, PaintService paintService) {
@@ -34,18 +32,14 @@ public class TextFileService {
         this.paintService = paintService;
     }
 
-    public void setGraphicsContext(GraphicsContext graphicsContext) {
-        this.graphicsContext = graphicsContext;
-    }
-
-    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor) {
+    public boolean createNewTextFile(String projectPath, String fileName, HTMLEditor editor, PaintController paintController) {
         File file = new File(projectPath + File.separator + fileName + ".html");
         try {
             if (file.createNewFile()) {
                 logger.log(file.getName() + " created successfully!");
                 fileDAO.setCurrentFile(new TextFile(fileName));
                 ShapeList.getInstance().emptyShapeList();
-                graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+                paintController.getCanvas().getGraphicsContext2D().clearRect(0, 0, editor.getWidth(), editor.getHeight());
                 return paintService.createNewImageFile();
             } else {
                 logger.log(file.getName() + " already exists. Choose a unique name!");
@@ -87,12 +81,13 @@ public class TextFileService {
         }
     }
 
-    public void openTextFile(String fileName, String projectPath, HTMLEditor editor) {
+    public void openTextFile(String fileName, String projectPath, WebView webView, PaintController paintController) {
 
         File file = new File(projectPath + File.separator + fileName + ".html");
 
-        ShapeList.getInstance().emptyShapeList();
-        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
+        paintController.getDrawnShapeList().clear();
+        paintController.getCanvas().getGraphicsContext2D().clearRect(0, 0,
+                paintController.getCanvas().getWidth(), paintController.getCanvas().getHeight());
 
         String content = "";
         if (file.exists()) {
@@ -101,9 +96,8 @@ public class TextFileService {
             paintService.loadImage(fileName, paintController.getDrawnShapeList());
             logger.log(file.getName() + " file opened successfully!");
         }
-        WebView webView = (WebView) editor.lookup("WebView");
         webView.getEngine().loadContent(content);
-        redraw(ShapeList.getInstance().getShapeList(), graphicsContext, editor);
+        paintController.redraw(paintController.getDrawnShapeList());
     }
 
     private void saveFile(String content, File file) {
@@ -136,23 +130,5 @@ public class TextFileService {
         }
 
         return content;
-    }
-
-    private void redraw(List<MyShape> drawnShapeList, GraphicsContext graphicsContext, HTMLEditor editor) {
-        graphicsContext.clearRect(0, 0, editor.getWidth(), editor.getHeight());
-        for (MyShape myShape : drawnShapeList) {
-            setupBrush(graphicsContext, myShape.getBrushSize(), myShape.getColor());
-            myShape.display(graphicsContext);
-        }
-    }
-
-    private void setupBrush(GraphicsContext graphicsContext, double size, Paint value) {
-        graphicsContext.setStroke(value);
-        graphicsContext.setLineWidth(size);
-        graphicsContext.setLineCap(StrokeLineCap.ROUND);
-    }
-
-    public void setPaintController(PaintController paintController) {
-        this.paintController = paintController;
     }
 }

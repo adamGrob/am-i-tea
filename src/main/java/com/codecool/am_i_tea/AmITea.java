@@ -37,7 +37,6 @@ public class AmITea extends Application {
     private PropertyUtil propertyUtil;
     private ProjectDAO projectDAO;
     private TextFileDAO fileDAO;
-    private GraphicsContext graphicsContext;
     private LoggerService logger;
     private PaintService paintService;
     private EditorMenuController editorMenuController;
@@ -92,14 +91,10 @@ public class AmITea extends Application {
             e.printStackTrace();
         }
 
-        graphicsContext = paintController.getCanvas().getGraphicsContext2D();
-        textFileService.setGraphicsContext(graphicsContext);
-
         wrapper = new StackPane();
         editorController.setWrapper(wrapper);
         editorController.setPaintController(paintController);
         editorMenuController.setPaintController(paintController);
-        textFileService.setPaintController(paintController);
         paintService.setPaintController(paintController);
 
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");

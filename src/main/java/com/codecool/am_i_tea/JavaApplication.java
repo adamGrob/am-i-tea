@@ -9,9 +9,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import netscape.javascript.JSObject;
 
 import java.io.IOException;
 
@@ -36,11 +38,6 @@ public class JavaApplication {
     }
 
     public void openLinkedFile(String fileName) {
-        fileService.saveTextFile(projectDAO.getCurrentProject().getPath(),
-                fileDAO.getCurrentFile().getName(),
-                editor);
-        fileService.openTextFile(fileName, projectDAO.getCurrentProject().getPath(), editor);
-
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("paint.fxml"));
         try {
@@ -51,13 +48,17 @@ public class JavaApplication {
             e.printStackTrace();
         }
 
-        drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
-
-        // todo set canvas content
-
         WebView readOnlyEditor = new WebView();
 
-        //todo set webView content
+        readOnlyEditor.getEngine().setJavaScriptEnabled(true);
+        readOnlyEditor.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            final JSObject window = (JSObject) readOnlyEditor.getEngine().executeScript("window");
+            window.setMember("app", this);
+        });
+
+        drawScene.getRoot().setStyle("-fx-background-color: transparent ;");
+
+        drawScene.getRoot().setMouseTransparent(true);
 
         GridPane readOnlyGridPane = new GridPane();
         readOnlyGridPane.getChildren().addAll(readOnlyEditor);
@@ -65,16 +66,20 @@ public class JavaApplication {
         StackPane readOnlyWrapper = new StackPane();
         readOnlyWrapper.getChildren().add(readOnlyGridPane);
         readOnlyWrapper.getChildren().add(drawScene.getRoot());
-        Scene readOnlyWindowScene = new Scene(readOnlyWrapper, 640, 480);
+
+        VBox wrapperVbox = new VBox();
+        Scene wrapperScene = new Scene(wrapperVbox);
+        ((VBox) wrapperScene.getRoot()).getChildren().addAll(readOnlyWrapper);
 
         Stage newWindow = new Stage();
         newWindow.setTitle(fileName);
-        newWindow.setScene(readOnlyWindowScene);
+        newWindow.setScene(wrapperScene);
 
         newWindow.setX(0.0);
         newWindow.setY(0.0);
         newWindow.show();
 
+        fileService.openTextFile(fileName, projectDAO.getCurrentProject().getPath(), readOnlyEditor, paintController);
 
     }
 }
