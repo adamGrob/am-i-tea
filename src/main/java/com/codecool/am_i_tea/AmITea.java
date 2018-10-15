@@ -108,7 +108,7 @@ public class AmITea extends Application {
         ((VBox) editorScene.getRoot()).getChildren().addAll(editor);
         wrapper.getChildren().add(editorScene.getRoot());
         wrapper.getChildren().add(drawScene.getRoot());
-        wrapper.getChildren().get(1).setMouseTransparent(true);
+        drawScene.getRoot().setMouseTransparent(true);
 
         VBox wrapperVbox = new VBox();
         Scene wrapperScene = new Scene(wrapperVbox);
