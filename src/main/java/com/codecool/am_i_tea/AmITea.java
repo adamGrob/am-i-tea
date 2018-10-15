@@ -99,6 +99,7 @@ public class AmITea extends Application {
         editorController.setWrapper(wrapper);
         editorController.setPaintController(paintController);
         editorMenuController.setPaintController(paintController);
+        textFileService.setPaintController(paintController);
         paintService.setPaintController(paintController);
 
         drawScene.getRoot().setStyle("-fx-background-color: transparent ;");

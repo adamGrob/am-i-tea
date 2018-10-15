@@ -151,4 +151,8 @@ public class TextFileService {
         graphicsContext.setLineWidth(size);
         graphicsContext.setLineCap(StrokeLineCap.ROUND);
     }
+
+    public void setPaintController(PaintController paintController) {
+        this.paintController = paintController;
+    }
 }
