@@ -68,7 +68,7 @@ public class AmITea extends Application {
         projectService = new ProjectService(projectDAO, propertyUtil, logger);
 
         HTMLEditor editor = new HTMLEditor();
-        javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor);
+        javaApp = new JavaApplication(fileDAO, textFileService, projectDAO, editor, logger);
 
         editorMenuController = new EditorMenuController(logger, propertyUtil, projectService,
                 textFileService, projectDAO, fileDAO, primaryStage, editor);
